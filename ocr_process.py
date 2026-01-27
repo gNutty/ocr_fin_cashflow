@@ -82,27 +82,33 @@ def extract_fields_from_chunk(text):
         "Company Name": None
     }
     
-    # A/C No: Look for A/C NO or account number pattern
-    ac_match = re.search(r"A/C\s?NO[:\.]?\s*([\d-]+)", text, re.IGNORECASE)
+    # A/C No: Handle :, ., ;, or just space
+    ac_match = re.search(r"A/C\s?NO[;:\.]?\s*([\d-]+)", text, re.IGNORECASE)
     if ac_match:
         fields["A/C No"] = ac_match.group(1).strip()
     
     # Document Date: DD-MMM-YYYY or MMM DD, YYYY
-    date_match = re.search(r"Date\s*:\s*([\d]{1,2}-[\w]{3}-[\d]{4})", text, re.IGNORECASE)
+    # Try finding the date pattern directly if "Date :" is missing
+    date_match = re.search(r"Date\s*[;:\.]?\s*([\d]{1,2}-[\w]{3}-[\d]{4})", text, re.IGNORECASE)
+    if not date_match:
+        date_match = re.search(r"\s+([\d]{1,2}-[\w]{3}-[\d]{4})", text, re.IGNORECASE)
     if not date_match:
         date_match = re.search(r"([A-Z]+ \d{1,2}, \d{4})", text, re.IGNORECASE)
+        
     if date_match:
         fields["Document Date"] = date_match.group(1).strip()
     
-    # Reference No: Our Ref or B/C
-    ref_match = re.search(r"(?:Our Ref|B/C|REFERENCE NO\.)\s*[:]?\s*([\w\d/ -]+)", text, re.IGNORECASE)
+    # Reference No: Our Ref, B/C, or look for IC pattern
+    ref_match = re.search(r"(?:Our Ref|B/C|REFERENCE NO\.|Our Ref[:;]|c/o.*?[:;])\s*([\w\d/ -]+)", text, re.IGNORECASE)
+    if not ref_match:
+         ref_match = re.search(r"(IC\s?\d{2}/\d{4})", text, re.IGNORECASE)
+         
     if ref_match:
-        fields["Reference No"] = ref_match.group(1).strip().split('\n')[0] # Only take first line
+        fields["Reference No"] = ref_match.group(1).strip().split('\n')[0]
     
     # Total Value: Total Debited, Total Amount, or Debit Amount
-    val_match = re.search(r"(?:Total Debited|Total Amount|Total Value|Debit Amount)\s*[:]?\s*[A-Z]{3}?\s*([\d,]+\.\d{2})", text, re.IGNORECASE)
+    val_match = re.search(r"(?:Total Debited|Total Amount|Total Value|Debit Amount|Amount)\s*[:;]?\s*[A-Z]{3}?\s*([\d,]+\.\d{2})", text, re.IGNORECASE)
     if not val_match:
-        # Fallback to look for a row ending with a large number after "Total"
         val_match = re.search(r"Total\s*.*?\s*([\d,]+\.\d{2})", text, re.IGNORECASE)
         
     if val_match:
