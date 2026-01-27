@@ -10,6 +10,15 @@ st.set_page_config(page_title="Smart Cash Flow OCR", layout="wide")
 st.title("💰 Smart Cash Flow OCR")
 st.markdown("---")
 
+# Load API Key from config.json if it exists
+config_api_key = ""
+if os.path.exists("config.json"):
+    try:
+        with open("config.json", "r") as f:
+            config_api_key = json.load(f).get("API_KEY", "")
+    except Exception:
+        pass
+
 # Sidebar Configuration
 st.sidebar.header("Settings")
 source_path = st.sidebar.text_input("Source PDF Path", value=os.getcwd() + r"\source")
@@ -18,14 +27,13 @@ export_path = st.sidebar.text_input("Export Excel Path", value=os.getcwd() + r"\
 
 ocr_engine = st.sidebar.selectbox("OCR Engine", ["Tesseract", "Typhoon"])
 api_key = ""
+
 if ocr_engine == "Typhoon":
-    api_key = st.sidebar.text_input("Typhoon API Key", type="password")
-    if not api_key:
-        # Try loading from config if exists
-        config_path = "config.json"
-        if os.path.exists(config_path):
-            with open(config_path, "r") as f:
-                api_key = json.load(f).get("API_KEY", "")
+    if config_api_key:
+        api_key = config_api_key
+        st.sidebar.success("✅ API Key loaded from config.json")
+    else:
+        api_key = st.sidebar.text_input("Typhoon API Key", type="password")
 
 # Main UI
 col1, col2 = st.columns([1, 1])
@@ -44,17 +52,21 @@ with col1:
         selected_file = st.selectbox("Select PDF to process", st.session_state.pdf_files)
         
         if st.button("🚀 Run OCR"):
-            with st.spinner(f"Processing {selected_file}..."):
-                pdf_full_path = os.path.join(source_path, selected_file)
-                results, raw_text = process_single_pdf(
-                    pdf_full_path, 
-                    engine=ocr_engine, 
-                    api_key=api_key, 
-                    master_path=master_path
-                )
-                st.session_state.current_results = results
-                st.session_state.raw_text = raw_text
-                st.success("OCR Completed!")
+            if ocr_engine == "Typhoon" and not api_key:
+                st.error("Please provide a Typhoon API Key.")
+            else:
+                with st.spinner(f"Processing {selected_file}..."):
+                    pdf_full_path = os.path.join(source_path, selected_file)
+                    # Note: process_single_pdf handles engine and api_key
+                    results, raw_text = process_single_pdf(
+                        pdf_full_path, 
+                        engine=ocr_engine, 
+                        api_key=api_key, 
+                        master_path=master_path
+                    )
+                    st.session_state.current_results = results
+                    st.session_state.raw_text = raw_text
+                    st.success("OCR Completed!")
 
 with col2:
     st.subheader("📄 Raw Text Preview")
@@ -86,8 +98,13 @@ st.markdown("""
         background-color: #007bff;
         color: white;
     }
+    /* Darken text in inputs for better visibility */
     .stTextInput>div>div>input {
-        background-color: #f0f2f6;
+        background-color: #f0f2f6 !important;
+        color: #000000 !important;
+    }
+    .stSelectbox>div>div>div {
+        color: #000000 !important;
     }
 </style>
 """, unsafe_allow_html=True)
