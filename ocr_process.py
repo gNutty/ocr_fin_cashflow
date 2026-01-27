@@ -79,11 +79,12 @@ def extract_fields_from_chunk(text):
         "Reference No": None,
         "Total Value": None,
         "Bank Name": None,
-        "Company Name": None
+        "Company Name": None,
+        "Transaction": None
     }
     
     # A/C No: Handle :, ., ;, or just space
-    ac_match = re.search(r"A/C\s?NO[;:\.]?\s*([\d-]+)", text, re.IGNORECASE)
+    ac_match = re.search(r"A/C\s?NO[;:\.\s]*\s*([\d-]+)", text, re.IGNORECASE)
     if ac_match:
         fields["A/C No"] = ac_match.group(1).strip()
     
@@ -98,27 +99,77 @@ def extract_fields_from_chunk(text):
     if date_match:
         fields["Document Date"] = date_match.group(1).strip()
     
-    # Reference No: Our Ref, B/C, or look for IC pattern
+    # Reference No: Our Ref, B/C, or look for IC/EC pattern
     ref_match = re.search(r"(?:Our Ref|B/C|REFERENCE NO\.|Our Ref[:;]|c/o.*?[:;])\s*([\w\d/ -]+)", text, re.IGNORECASE)
     if not ref_match:
-         ref_match = re.search(r"(IC\s?\d{2}/\d{4})", text, re.IGNORECASE)
+         ref_match = re.search(r"((?:IC|EC)\s?\d{2}/\d{4})", text, re.IGNORECASE)
          
     if ref_match:
-        fields["Reference No"] = ref_match.group(1).strip().split('\n')[0]
+        ref_val = ref_match.group(1).strip().split('\n')[0]
+        # Clean up if it matched something like "A/C No"
+        if "A/C No" in ref_val:
+            # Try searching for the pattern again after "A/C No"
+            second_match = re.search(r"((?:IC|EC)\s?\d{2}/\d{4})", text[ref_match.end():], re.IGNORECASE)
+            if second_match:
+                ref_val = second_match.group(1).strip()
+            else:
+                ref_val = None
+        fields["Reference No"] = ref_val
     
-    # Total Value: Total Debited, Total Amount, or Debit Amount
-    val_match = re.search(r"(?:Total Debited|Total Amount|Total Value|Debit Amount|Amount)\s*[:;]?\s*[A-Z]{3}?\s*([\d,]+\.\d{2})", text, re.IGNORECASE)
-    if not val_match:
-        val_match = re.search(r"Total\s*.*?\s*([\d,]+\.\d{2})", text, re.IGNORECASE)
+    # Total Value: Amount Credited, Total Debited, etc.
+    # Prioritize specific keywords
+    val_keywords = [
+        "Amount Credited", "Total Debited", "Total Credited", 
+        "Total Amount", "Total Value", "Debit Amount", "Credit Amount", "Amount"
+    ]
+    
+    for kw in val_keywords:
+        # Try same line first
+        val_match = re.search(rf"{kw}\s*[:;]?\s*[A-Z]{3}?\s*([\d,]+\.\d{2})", text, re.IGNORECASE)
+        if val_match:
+            fields["Total Value"] = val_match.group(1).replace(",", "")
+            # If it's "Amount Credited", we are very sure, but let's check if there's a better match later
+            if "Amount Credited" in kw:
+                break
         
-    if val_match:
-        fields["Total Value"] = val_match.group(1).replace(",", "")
+        # Try looking ahead in the chunk
+        kw_match = re.search(rf"{kw}\s*[:;]?", text, re.IGNORECASE)
+        if kw_match:
+            # Search for all currency patterns after the keyword
+            lookahead_text = text[kw_match.end():]
+            all_vals = re.findall(r"(?:[A-Z]{3}?\s*)?([\d,]+\.\d{2})(?!\d)", lookahead_text)
+            if all_vals:
+                # For "Amount Credited", the target value is often the LAST one in the section
+                if "Amount Credited" in kw:
+                    fields["Total Value"] = all_vals[-1].replace(",", "")
+                else:
+                    fields["Total Value"] = all_vals[0].replace(",", "")
+                break
+    
+    # Fallback for Total Value: Look for currency pattern following a colon if still None
+    if not fields["Total Value"]:
+        # Try to find a pattern like ': USD 123,456.78' or ': 123,456.78'
+        val_match = re.search(r"[:;]\s*[A-Z]{3}?\s*([\d,]+\.\d{2})(?!\d)", text)
+        if val_match:
+            fields["Total Value"] = val_match.group(1).replace(",", "")
+    
+    # Final cleanup: if Total Value is still None, take the last currency pattern in the chunk
+    if not fields["Total Value"]:
+        all_vals = re.findall(r"[A-Z]{3}?\s*([\d,]+\.\d{2})(?!\d)", text)
+        if all_vals:
+            fields["Total Value"] = all_vals[-1].replace(",", "")
+    
+    # Transaction Type
+    if re.search(r"DEBIT ADVICE", text, re.IGNORECASE):
+        fields["Transaction"] = "DEBIT"
+    elif re.search(r"CREDIT ADVICE", text, re.IGNORECASE):
+        fields["Transaction"] = "CREDIT"
         
     return fields
 
 def extract_all_entries(text):
-    # Split text into chunks based on header markers (e.g., DEBIT ADVICE, RECEIPT NO)
-    chunks = re.split(r"(?=DEBIT ADVICE|RECEIPT NO\.)", text, flags=re.IGNORECASE)
+    # Split text into chunks based on header markers (e.g., DEBIT ADVICE, CREDIT ADVICE, RECEIPT NO)
+    chunks = re.split(r"(?=DEBIT ADVICE|CREDIT ADVICE|RECEIPT NO\.)", text, flags=re.IGNORECASE)
     results = []
     for chunk in chunks:
         if "Total" in chunk or "A/C" in chunk:
@@ -162,9 +213,10 @@ def process_single_pdf(pdf_path, engine="Tesseract", api_key=None, master_path=N
     return entries, text
 
 if __name__ == "__main__":
+    import json
     base_dir = os.path.dirname(os.path.abspath(__file__))
     master_file = os.path.join(base_dir, 'Master', 'AC_Master.xlsx')
-    test_pdf = os.path.join(base_dir, 'source', 'ADV + SWIFT FOR IC 25-0660, 0661,0656 -KTB -CP T.pdf')
+    test_pdf = os.path.join(base_dir, 'source', 'FUNDS IN FOR INV 360352, 2540700066,2500061873,2540700067 -KTB -CP T.pdf')
     
     api_key = None
     config_path = os.path.join(base_dir, 'config.json')
@@ -174,37 +226,11 @@ if __name__ == "__main__":
 
     if os.path.exists(test_pdf):
         print(f"Testing OCR on: {test_pdf}")
-        # Testing with Tesseract first as it's faster and Typhoon has 400 issues
+        # Run with Tesseract as it's more stable for this test
         results, raw_text = process_single_pdf(test_pdf, engine="Tesseract", master_path=master_file)
         print("Extracted Data:", json.dumps(results, indent=2))
         
         output_dir = os.path.join(base_dir, 'output', 'test_results')
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-        
-        txt_name = os.path.basename(test_pdf).replace(".pdf", ".txt")
-        with open(os.path.join(output_dir, txt_name), 'w', encoding='utf-8') as f:
-            f.write(raw_text)
-        print(f"Raw text saved to {output_dir}")
-
-if __name__ == "__main__":
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    master_file = os.path.join(base_dir, 'Master', 'AC_Master.xlsx')
-    test_pdf = os.path.join(base_dir, 'source', 'ADV + SWIFT FOR IC 25-0660, 0661,0656 -KTB -CP T.pdf')
-    
-    api_key = None
-    config_path = os.path.join(base_dir, 'config.json')
-    if os.path.exists(config_path):
-        with open(config_path, 'r') as f:
-            api_key = json.load(f).get("API_KEY")
-
-    if os.path.exists(test_pdf):
-        print(f"Testing OCR on: {test_pdf}")
-        # Note: Processing 9 pages with Typhoon might take a while.
-        result, raw_text = process_single_pdf(test_pdf, engine="Typhoon", api_key=api_key, master_path=master_file)
-        print("Extracted Data:", json.dumps(result, indent=2))
-        
-        output_dir = os.path.join(base_dir, 'output', 'test_typhoon')
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         

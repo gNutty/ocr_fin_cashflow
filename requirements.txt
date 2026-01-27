@@ -1,0 +1,7 @@
+streamlit
+pandas
+pdf2image
+pymupdf
+pytesseract
+requests
+openpyxl

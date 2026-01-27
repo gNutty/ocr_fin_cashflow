@@ -9,10 +9,11 @@
 - **Data Preview:** แสดงตาราง (st.dataframe) ที่ดึงข้อมูลมาได้ 6 Columns และอนุญาตให้แก้ไขค่าได้ (Editable)
 - **Action:** ปุ่ม "Process & Export" เพื่อรวมข้อมูลและเซฟเป็นไฟล์ Excel ฐานข้อมูล
 
-## Data Logic (6 Columns)
+## Data Logic (7 Columns)
 1. A/C No: ค้นหาจาก Keyword "A/C NO:"
 2. Document Date: ดึงวันที่ด้านบนสุด แปลงเป็น dd/MM/yyyy
 3. Reference No: ค้นหาจาก "Our Ref" หรือคำที่เกี่ยวข้อง
-4. Total Value: ดึงค่า "Total Debited" หรือตัวเลขสุดท้ายของหน้า
+4. Total Value: ดึงค่า "Total Debited/Credited" หรือตัวเลขสุดท้ายของหน้า
 5. Bank Name: Lookup จาก `AC_Master.xlsx` (Key: A/C No)
 6. Company Name: Lookup จาก `AC_Master.xlsx` (Key: A/C No)
+7. Transaction: "DEBIT" หากพบ DEBIT ADVICE หรือ "CREDIT" หากพบ CREDIT ADVICE
