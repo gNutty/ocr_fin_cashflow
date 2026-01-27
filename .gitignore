@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.streamlit/
+output/CashFlow_Report*.xlsx
+output/test_results/
+output/test_typhoon/
+config.json
