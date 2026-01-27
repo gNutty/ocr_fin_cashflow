@@ -103,8 +103,9 @@ st.markdown("""
         background-color: #f0f2f6 !important;
         color: #000000 !important;
     }
+    /* Specifically for OCR Engine (Selectbox) - keep text white on dark background */
     .stSelectbox>div>div>div {
-        color: #000000 !important;
+        color: #ffffff !important;
     }
 </style>
 """, unsafe_allow_html=True)
