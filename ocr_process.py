@@ -186,9 +186,18 @@ def extract_all_entries(text):
     # Split text into chunks based on header markers (e.g., DEBIT ADVICE, CREDIT ADVICE, RECEIPT NO)
     chunks = re.split(r"(?=DEBIT ADVICE|CREDIT ADVICE|RECEIPT NO\.)", text, flags=re.IGNORECASE)
     results = []
+    last_ac_no = None  # Store the last seen A/C No to "forward-fill" if missing
+    
     for chunk in chunks:
         if "Total" in chunk or "A/C" in chunk:
             data = extract_fields_from_chunk(chunk)
+            
+            # Special logic: If A/C No is missing, use the one from the previous entry
+            if not data["A/C No"] and last_ac_no:
+                data["A/C No"] = last_ac_no
+            elif data["A/C No"]:
+                last_ac_no = data["A/C No"]
+                
             if any(data.values()): # Only add if at least one field found
                 results.append(data)
     return results
