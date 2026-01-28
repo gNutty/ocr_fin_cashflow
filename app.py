@@ -80,21 +80,30 @@ with col1:
             st.error("Invalid source path.")
 
     if "pdf_files" in st.session_state:
-        options = ["All Files"] + st.session_state.pdf_files
-        selected_file = st.selectbox("Select PDF to process", options)
+        # Multi-select widget with "Select All" option via code logic
+        # Default to empty list
+        selected_files = st.multiselect("Select PDF(s) to process", st.session_state.pdf_files)
         
-        if st.button("🚀 Run OCR"):
+        # Add a "Select All" helper? 
+        # For simple UI, let's keep it as standard multiselect. 
+        # But user might want "All Files" convenience. 
+        # Streamlit doesn't have built-in "Select All" in multiselect but we can use a button or checkbox.
+        # Given the request is "tick select file", multiselect is the right match.
+        
+        col_actions, col_status = st.columns([0.4, 0.6])
+        with col_actions:
+            run_btn = st.button("🚀 Run OCR", use_container_width=True)
+            
+        if run_btn:
             if ocr_engine == "Typhoon" and not api_key:
                 st.error("Please provide a Typhoon API Key.")
+            elif not selected_files:
+                st.warning("Please select at least one file to process.")
             else:
                 all_results = []
                 all_raw_text = ""
                 
-                files_to_process = []
-                if selected_file == "All Files":
-                    files_to_process = st.session_state.pdf_files
-                else:
-                    files_to_process = [selected_file]
+                files_to_process = selected_files
                 
                 progress_bar = st.progress(0)
                 status_text = st.empty()
@@ -164,18 +173,82 @@ if "current_results" in st.session_state and st.session_state.current_results:
     display_df["Page"] = display_df["Page"].fillna(1).astype(int)
     
     # Apply link creation and FORCE string type to avoid Streamlit error
-    display_df["PDF Link"] = display_df.apply(make_pdf_link, axis=1).astype(str)
-
     # --- Split Layout: Data Table (Left) & PDF Preview (Right) ---
     col1, col2 = st.columns([0.65, 0.35], gap="medium")
 
     with col1:
         st.subheader("Edit Data")
         
-        # Add 'Select' column for robust row selection
+        # Ensure "Select" state persists in current_results
+        # Update current_results based on session state if needed (handled by logic below)
+
+        # Logic to ensure "Select" exists in data
         if "Select" not in display_df.columns:
-            display_df.insert(0, "Select", False)
+             # Check if we have select state in session_state specific to this
+             # If not, initialize
+             display_df.insert(0, "Select", False)
+             # Update current_results to include Select=False if not present
+             for res in st.session_state.current_results:
+                 if "Select" not in res:
+                     res["Select"] = False
         
+        # Callback to handle selection
+        def on_editor_change():
+            if "data_editor" not in st.session_state:
+                return
+            
+            edited_rows = st.session_state["data_editor"]["edited_rows"]
+            
+            # Identify purely selection changes (where "Select" is the only key changed to True)
+            new_selection_idx = None
+            
+            for idx, changes in edited_rows.items():
+                if "Select" in changes and changes["Select"] is True:
+                     new_selection_idx = int(idx)
+                     break  # Found the new selection
+            
+            # If a new selection was made, update all rows in current_results
+            if new_selection_idx is not None:
+                # Update underlying data source (current_results)
+                for i, res in enumerate(st.session_state.current_results):
+                    if i == new_selection_idx:
+                        res["Select"] = True
+                    else:
+                        res["Select"] = False
+                
+                # We need to refresh display_df from updated current_results for the next render
+                # But since we are inside a callback, the rerun happens automatically or we can force it.
+                # However, display_df is created at the top of this block. 
+                # We need to make sure the dataframe passed to data_editor next time has correct values.
+            
+            # Handle uncheck (optional: if uncheck current, nothing happens, just no selection)
+            # Handle other edits (A/C No): Just persist them to current_results
+            for idx, changes in edited_rows.items():
+                 idx = int(idx)
+                 # Skip if it's the selection logic handled above (unless we want to persist other changes too)
+                 for k, v in changes.items():
+                     if k != "Select":
+                         st.session_state.current_results[idx][k] = v
+        
+        # Re-build display_df from current_results to reflect the latest state enforced by callback
+        # This ensures that when the app reruns after callback, it shows only 1 selected.
+        # Note: We must rebuild it HERE because st.data_editor uses the *input* dataframe.
+        display_df = pd.DataFrame(st.session_state.current_results)
+        display_df = display_df.reset_index(drop=True)
+        # Ensure columns again (redundant but safe)
+        for col in ["A/C No", "Bank Name", "Company Name", "Document Date", "Reference No", "Total Value", "Transaction", "Source File", "Page", "Select"]:
+            if col not in display_df.columns:
+                 if col == "Select": display_df[col] = False
+                 else: display_df[col] = None
+        
+        # Helper to make link
+        display_df["Page"] = display_df["Page"].fillna(1).astype(int)
+        display_df["PDF Link"] = display_df.apply(make_pdf_link, axis=1).astype(str)
+        
+        # Reorder columns including Select
+        cols = ["Select", "A/C No", "Bank Name", "Company Name", "Document Date", "Reference No", "Total Value", "Transaction", "Source File", "Page", "PDF Link"]
+        display_df = display_df[[c for c in cols if c in display_df.columns]]
+
         # Configure columns
         column_config = {
             "Select": st.column_config.CheckboxColumn("View", help="Check to view PDF", width="small"),
@@ -196,19 +269,20 @@ if "current_results" in st.session_state and st.session_state.current_results:
             num_rows="dynamic",
             use_container_width=True,
             key="data_editor",
-            hide_index=True  # Hide default index to save space
+            hide_index=True,
+            on_change=on_editor_change
         )
-        
+
         # Detect Selection for Preview
         target_source = None
         target_page = 1
         
-        # Check if any row is selected via checkbox
-        # We use the filtered dataframe to find truthy 'Select' values
+        # Check if any row is selected via checkbox (using filtered df)
+        # Note: on_change callback handles the data update, so edited_df here should reflect that
         selected_rows = edited_df[edited_df["Select"] == True]
         
         if not selected_rows.empty:
-            # Take the last selected row
+            # Should only be one row if logic works, but take last just in case
             current_row = selected_rows.iloc[-1]
             target_source = current_row["Source File"]
             target_page_raw = current_row["Page"]
@@ -221,14 +295,14 @@ if "current_results" in st.session_state and st.session_state.current_results:
         st.subheader("PDF Preview")
         if target_source:
              target_pdf_path = os.path.join(source_path, str(target_source))
-             st.markdown(f"**File:** `{target_source}`")
-             st.markdown(f"**Page:** `{target_page}`")
+             # Removed metadata text to align with table as requested
              render_pdf(target_pdf_path, target_page)
         else:
             st.info("Select a row in the 'View' column to preview the PDF.")
-
-    # --- Auto-Lookup Logic ---
-    # Iterate to check for missing bank/company info
+    # (Select is also dropped just in case, though it is usually fine)
+    cols_to_drop = [c for c in ["Select", "PDF Link"] if c in edited_df.columns]
+    
+    # Check for changes in 'A/C No' to trigger lookup (Legacy loop for redundancy if on_change missed it)
     for index, row in edited_df.iterrows():
         ac_no = str(row.get("A/C No", "")).strip()
         bank_name = str(row.get("Bank Name", "")).strip()
@@ -237,24 +311,13 @@ if "current_results" in st.session_state and st.session_state.current_results:
         if ac_no and (not bank_name or not comp_name):
              match = lookup_master(ac_no)
              if match:
-                 updated = False
-                 if not bank_name and match["Bank Name"]:
+                 if not bank_name:
                      edited_df.at[index, "Bank Name"] = match["Bank Name"]
-                     updated = True
-                 if not comp_name and match["Company Name"]:
+                 if not comp_name:
                      edited_df.at[index, "Company Name"] = match["Company Name"]
-                     updated = True
-                 
-                 # If we updated the dataframe, we might need to rerun to show it?
-                 # Streamlit's data_editor return value is the *current* state. 
-                 # Modifying it here won't update the UI immediately unless we force a rerun or rely on next cycle.
-                 # However, usually we should separate "display" from "edit".
-                 # For now, let's just accept the edit for export. 
 
     st.divider()
     if st.button("💾 Export & Append to Excel"):
-        # Remove the helper columns before exporting
-        cols_to_drop = [c for c in ["Select", "PDF Link"] if c in edited_df.columns]
         export_df = edited_df.drop(columns=cols_to_drop)
         msg = append_to_excel(export_df, export_path)
         st.info(msg)
