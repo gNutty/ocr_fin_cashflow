@@ -80,9 +80,15 @@ with col1:
             st.error("Invalid source path.")
 
     if "pdf_files" in st.session_state:
-        # Multi-select widget with "Select All" option via code logic
-        # Default to empty list
-        selected_files = st.multiselect("Select PDF(s) to process", st.session_state.pdf_files)
+        # Multi-select widget with "Select All" option
+        options = ["Select All"] + st.session_state.pdf_files
+        selected_options = st.multiselect("Select PDF(s) to process", options, default=["Select All"])
+        
+        # Resolve which files to process
+        if "Select All" in selected_options:
+            selected_files = st.session_state.pdf_files
+        else:
+            selected_files = selected_options
         
         # Add a "Select All" helper? 
         # For simple UI, let's keep it as standard multiselect. 
