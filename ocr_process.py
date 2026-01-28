@@ -83,16 +83,29 @@ def extract_fields_from_chunk(text):
         "Transaction": None
     }
     
-    # A/C No: Handle :, ., ;, or just space
-    ac_match = re.search(r"A/C\s?NO[;:\.\s]*\s*([\d-]+)", text, re.IGNORECASE)
-    if ac_match:
-        fields["A/C No"] = ac_match.group(1).strip()
+    # A/C No: Handle variations and OCR noise (e.g., A/ICNO, AIC No, AVCNO, A/C'NO)
+    # Using a list of patterns to try in order of specificity
+    ac_patterns = [
+        r"(?:A[/|I]?C['\s]*NO|Account\s*No|AVCNO|AIC\s?No)[;:\.\s]*\s*([\d-]{7,})", # Priority: Specific keywords + long enough number
+        r"Id>([\d-]{7,})</Id", # XML-like patterns found in SWIFT reports
+        r"(?:A[/|I]?C['\s]*NO|Account\s*No|AVCNO|AIC\s?No)[;:\.\s]*\s*([\d-]+)"  # Fallback: Keywords with any number/hyphen
+    ]
+    
+    for pattern in ac_patterns:
+        ac_match = re.search(pattern, text, re.IGNORECASE)
+        if ac_match:
+            val = ac_match.group(1).strip()
+            # Basic validation: Usually ac nos are more than 5 digits/chars
+            if len(val) >= 5:
+                fields["A/C No"] = val
+                break
     
     # Document Date: DD-MMM-YYYY or MMM DD, YYYY
     # Try finding the date pattern directly if "Date :" is missing
     date_match = re.search(r"Date\s*[;:\.]?\s*([\d]{1,2}-[\w]{3}-[\d]{4})", text, re.IGNORECASE)
     if not date_match:
-        date_match = re.search(r"\s+([\d]{1,2}-[\w]{3}-[\d]{4})", text, re.IGNORECASE)
+        # Search for date pattern anywhere in the text if not near "Date"
+        date_match = re.search(r"(\b\d{1,2}-[\w]{3}-\d{4}\b)", text, re.IGNORECASE)
     if not date_match:
         date_match = re.search(r"([A-Z]+ \d{1,2}, \d{4})", text, re.IGNORECASE)
         
@@ -100,18 +113,20 @@ def extract_fields_from_chunk(text):
         fields["Document Date"] = date_match.group(1).strip()
     
     # Reference No: Our Ref, B/C, or look for IC/EC pattern
-    ref_match = re.search(r"(?:Our Ref|B/C|REFERENCE NO\.|Our Ref[:;]|c/o.*?[:;])\s*([\w\d/ -]+)", text, re.IGNORECASE)
+    # Krungthai specific: Our Ref: OR 25/0055, EC 25/0708, IC 25/0662
+    ref_match = re.search(r"(?:Our Ref|B/C|REFERENCE NO\.|Our Ref[:;]|c/o.*?[:;])\s*[;:\.]?\s*([\w\d/ -]{5,})", text, re.IGNORECASE)
     if not ref_match:
-         ref_match = re.search(r"((?:IC|EC)\s?\d{2}/\d{4})", text, re.IGNORECASE)
+         # Look for the pattern XX YY/ZZZZ directly (e.g., OR 25/0055)
+         ref_match = re.search(r"\b((?:OR|IC|EC|BC)\s?\d{2}/\d{4})\b", text, re.IGNORECASE)
          
     if ref_match:
-        ref_val = ref_match.group(1).strip().split('\n')[0]
-        # Clean up if it matched something like "A/C No"
-        if "A/C No" in ref_val:
-            # Try searching for the pattern again after "A/C No"
-            second_match = re.search(r"((?:IC|EC)\s?\d{2}/\d{4})", text[ref_match.end():], re.IGNORECASE)
-            if second_match:
-                ref_val = second_match.group(1).strip()
+        ref_val = ref_match.group(1).strip().split('\n')[0].strip()
+        # Clean up if it matched something like "A/C No" or "AMOUNT"
+        if any(x in ref_val.upper() for x in ["A/C", "AMOUNT", "DATE"]):
+            # Try to extract just the code if possible
+            re_code = re.search(r"((?:OR|IC|EC|BC)\s?\d{2}/\d{4})", ref_val, re.IGNORECASE)
+            if re_code:
+                ref_val = re_code.group(1)
             else:
                 ref_val = None
         fields["Reference No"] = ref_val
