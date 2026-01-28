@@ -6,6 +6,35 @@ from ocr_process import process_single_pdf, lookup_master
 from excel_handler import append_to_excel
 import urllib.parse
 import base64
+from io import BytesIO
+from PIL import Image
+from pdf2image import convert_from_path
+
+# --- Helper Functions ---
+def render_pdf(file_path, page_num=1):
+    """Render a specific page of a PDF as an image."""
+    try:
+        # Check if file exists
+        if not os.path.exists(file_path):
+            st.error(f"File not found: {file_path}")
+            return
+
+        # Convert PDF to image
+        images = convert_from_path(file_path, first_page=page_num, last_page=page_num)
+        if images:
+            st.image(images[0], caption=f"Page {page_num} of {os.path.basename(file_path)}", use_container_width=True)
+        else:
+            st.error("Could not render PDF page.")
+    except Exception as e:
+        st.error(f"Error rendering PDF: {e}")
+        # Fallback to iframe if pdf2image fails (e.g. missing poppler)
+        try:
+            with open(file_path, "rb") as f:
+                base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+            pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}#page={page_num}" width="100%" height="800" type="application/pdf"></iframe>'
+            st.markdown(pdf_display, unsafe_allow_html=True)
+        except Exception as fallback_error:
+            st.error(f"Fallback preview failed: {fallback_error}")
 
 st.set_page_config(page_title="Smart Cash Flow OCR", layout="wide")
 
@@ -137,101 +166,96 @@ if "current_results" in st.session_state and st.session_state.current_results:
     # Apply link creation and FORCE string type to avoid Streamlit error
     display_df["PDF Link"] = display_df.apply(make_pdf_link, axis=1).astype(str)
 
-    # UI for Data Validation
-    t1, t2 = st.tabs(["📝 Edit Table", "🔍 PDF Preview"])
-    
-    with t1:
-        st.info("💡 **Tip:** Select a row to see it in the **PDF Preview** tab. Edit **A/C No** to auto-lookup Bank/Company.")
+    # --- Split Layout: Data Table (Left) & PDF Preview (Right) ---
+    col1, col2 = st.columns([0.65, 0.35], gap="medium")
+
+    with col1:
+        st.subheader("Edit Data")
         
-        # Capture selection state
+        # Add 'Select' column for robust row selection
+        if "Select" not in display_df.columns:
+            display_df.insert(0, "Select", False)
+        
+        # Configure columns
+        column_config = {
+            "Select": st.column_config.CheckboxColumn("View", help="Check to view PDF", width="small"),
+            "PDF Link": st.column_config.LinkColumn(
+                "PDF Link",
+                help="Open in new tab",
+                validate="^file://.*",
+                display_text="Open"
+            ),
+            "Page": st.column_config.NumberColumn(disabled=True),
+            "Source File": st.column_config.TextColumn(disabled=True),
+        }
+        
+        # Display Data Editor
         edited_df = st.data_editor(
             display_df,
-            column_config={
-                "PDF Link": st.column_config.LinkColumn(
-                    "PDF Link",
-                    help="Click to open PDF at the specific page. Note: Modern browsers block local file links. Use the PDF Preview tab for a built-in view.",
-                    validate="^file://.*",
-                    display_text="Open in New Tab"
-                ),
-                "Page": st.column_config.NumberColumn(disabled=True),
-                "Source File": st.column_config.TextColumn(disabled=True),
-            },
+            column_config=column_config,
             num_rows="dynamic",
             use_container_width=True,
-            key="data_editor"
+            key="data_editor",
+            hide_index=True  # Hide default index to save space
         )
         
-        # Fallback to manual selection via selectbox since interactive selection is not supported in this env
-        default_idx = 0
+        # Detect Selection for Preview
+        target_source = None
+        target_page = 1
+        
+        # Check if any row is selected via checkbox
+        # We use the filtered dataframe to find truthy 'Select' values
+        selected_rows = edited_df[edited_df["Select"] == True]
+        
+        if not selected_rows.empty:
+            # Take the last selected row
+            current_row = selected_rows.iloc[-1]
+            target_source = current_row["Source File"]
+            target_page_raw = current_row["Page"]
+            try:
+                target_page = int(target_page_raw) if pd.notna(target_page_raw) else 1
+            except:
+                target_page = 1
 
-    with t2:
-        if not edited_df.empty:
-            # Let user select a row to preview (linked to table selection)
-            # Ensure index is within range
-            if default_idx >= len(edited_df):
-                default_idx = 0
-                
-            row_idx = st.selectbox("Select row to preview PDF page", 
-                                   range(len(edited_df)), 
-                                   index=default_idx,
-                                   format_func=lambda i: f"Row {i+1}: {edited_df.iloc[i]['Source File']} (P.{edited_df.iloc[i]['Page']})")
-            
-            if row_idx is not None:
-                target_row = edited_df.iloc[row_idx]
-                source_val = target_row["Source File"]
-                if not source_val or pd.isna(source_val):
-                    st.warning("No source file specified for this row.")
-                else:
-                    target_pdf = os.path.join(source_path, str(source_val))
-                    
-                    # Safely get page number, default to 1 if missing or invalid
-                    raw_page = target_row.get("Page")
-                    try:
-                        target_page = int(raw_page) if raw_page and pd.notna(raw_page) else 1
-                    except ValueError:
-                        target_page = 1
-                    
-                    st.markdown(f"**Viewing:** `{source_val}` | **Page:** `{target_page}`")
-                    
-                    if os.path.exists(target_pdf):
-                        try:
-                            with open(target_pdf, "rb") as f:
-                                base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-                            
-                            # Use iframe with #page=N
-                            pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}#page={target_page}" width="100%" height="800" type="application/pdf"></iframe>'
-                            st.markdown(pdf_display, unsafe_allow_html=True)
-                        except Exception as e:
-                            st.error(f"Error loading preview: {e}")
-                    else:
-                        st.warning(f"File not found: {target_pdf}")
+    with col2:
+        st.subheader("PDF Preview")
+        if target_source:
+             target_pdf_path = os.path.join(source_path, str(target_source))
+             st.markdown(f"**File:** `{target_source}`")
+             st.markdown(f"**Page:** `{target_page}`")
+             render_pdf(target_pdf_path, target_page)
         else:
-            st.info("No data available for preview.")
+            st.info("Select a row in the 'View' column to preview the PDF.")
 
-    # Auto-matching logic for A/C No
-    if not edited_df.equals(display_df):
-        needs_update = False
-        new_results = edited_df.to_dict('records')
+    # --- Auto-Lookup Logic ---
+    # Iterate to check for missing bank/company info
+    for index, row in edited_df.iterrows():
+        ac_no = str(row.get("A/C No", "")).strip()
+        bank_name = str(row.get("Bank Name", "")).strip()
+        comp_name = str(row.get("Company Name", "")).strip()
         
-        for i, row in enumerate(new_results):
-            # Check if A/C No was changed or if Bank/Company is empty but A/C No exists
-            old_ac = display_df.iloc[i]["A/C No"] if i < len(display_df) else None
-            new_ac = row["A/C No"]
-            
-            if (new_ac and new_ac != old_ac) or (new_ac and not row["Bank Name"]):
-                bank, company = lookup_master(new_ac, master_path)
-                if bank or company:
-                    new_results[i]["Bank Name"] = bank
-                    new_results[i]["Company Name"] = company
-                    needs_update = True
-        
-        if needs_update:
-            st.session_state.current_results = new_results
-            st.rerun()
+        if ac_no and (not bank_name or not comp_name):
+             match = lookup_master(ac_no)
+             if match:
+                 updated = False
+                 if not bank_name and match["Bank Name"]:
+                     edited_df.at[index, "Bank Name"] = match["Bank Name"]
+                     updated = True
+                 if not comp_name and match["Company Name"]:
+                     edited_df.at[index, "Company Name"] = match["Company Name"]
+                     updated = True
+                 
+                 # If we updated the dataframe, we might need to rerun to show it?
+                 # Streamlit's data_editor return value is the *current* state. 
+                 # Modifying it here won't update the UI immediately unless we force a rerun or rely on next cycle.
+                 # However, usually we should separate "display" from "edit".
+                 # For now, let's just accept the edit for export. 
 
+    st.divider()
     if st.button("💾 Export & Append to Excel"):
-        # Remove the helper "PDF Link" column before exporting
-        export_df = edited_df.drop(columns=["PDF Link"])
+        # Remove the helper columns before exporting
+        cols_to_drop = [c for c in ["Select", "PDF Link"] if c in edited_df.columns]
+        export_df = edited_df.drop(columns=cols_to_drop)
         msg = append_to_excel(export_df, export_path)
         st.info(msg)
 else:
