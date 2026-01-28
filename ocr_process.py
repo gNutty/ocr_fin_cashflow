@@ -72,132 +72,178 @@ def ocr_typhoon(pdf_path, api_key):
             
     return full_text
 
-def extract_fields_from_chunk(text):
-    fields = {
-        "A/C No": None,
-        "Document Date": None,
-        "Reference No": None,
-        "Total Value": None,
-        "Bank Name": None,
-        "Company Name": None,
-        "Transaction": None
-    }
-    
-    # A/C No: Handle variations and OCR noise (e.g., A/ICNO, AIC No, AVCNO, A/C'NO)
-    # Using a list of patterns to try in order of specificity
-    ac_patterns = [
-        r"(?:A[/|I]?C['\s]*NO|Account\s*No|AVCNO|AIC\s?No)[;:\.\s]*\s*([\d-]{7,})", # Priority: Specific keywords + long enough number
-        r"Id>([\d-]{7,})</Id", # XML-like patterns found in SWIFT reports
-        r"(?:A[/|I]?C['\s]*NO|Account\s*No|AVCNO|AIC\s?No)[;:\.\s]*\s*([\d-]+)"  # Fallback: Keywords with any number/hyphen
-    ]
-    
-    for pattern in ac_patterns:
-        ac_match = re.search(pattern, text, re.IGNORECASE)
+# --- Parser Strategy Pattern ---
+
+class BankParser:
+    def extract_chunk(self, text):
+        """Extract fields from a text chunk. Must be implemented by subclasses."""
+        raise NotImplementedError
+
+class KrungthaiParser(BankParser):
+    def extract_chunk(self, text):
+        fields = {
+            "A/C No": None,
+            "Document Date": None,
+            "Reference No": None,
+            "Total Value": None,
+            "Bank Name": "Krungthai", # Auto-fill Bank Name
+            "Company Name": None,
+            "Transaction": None
+        }
+        
+        # A/C No
+        ac_patterns = [
+            r"(?:A[/|I]?C['\s]*NO|Account\s*No|AVCNO|AIC\s?No)[;:\.\s]*\s*([\d-]{7,})", 
+            r"Id>([\d-]{7,})</Id", 
+            r"(?:A[/|I]?C['\s]*NO|Account\s*No|AVCNO|AIC\s?No)[;:\.\s]*\s*([\d-]+)"
+        ]
+        for pattern in ac_patterns:
+            ac_match = re.search(pattern, text, re.IGNORECASE)
+            if ac_match:
+                val = ac_match.group(1).strip()
+                if len(val) >= 5:
+                    fields["A/C No"] = val
+                    break
+        
+        # Document Date
+        date_match = re.search(r"Date\s*[;:\.]?\s*([\d]{1,2}-[\w]{3}-[\d]{4})", text, re.IGNORECASE)
+        if not date_match:
+            date_match = re.search(r"(\b\d{1,2}-[\w]{3}-\d{4}\b)", text, re.IGNORECASE)
+        if not date_match:
+            date_match = re.search(r"([A-Z]+ \d{1,2}, \d{4})", text, re.IGNORECASE)
+        if date_match:
+            fields["Document Date"] = date_match.group(1).strip()
+        
+        # Reference No
+        ref_match = re.search(r"(?:Our Ref|B/C|REFERENCE NO\.|Our Ref[:;]|c/o.*?[:;])\s*[;:\.]?\s*([\w\d/ -]{5,})", text, re.IGNORECASE)
+        if not ref_match:
+             ref_match = re.search(r"\b((?:OR|IC|EC|BC)\s?\d{2}/\d{4})\b", text, re.IGNORECASE)
+        if ref_match:
+            ref_val = ref_match.group(1).strip().split('\n')[0].strip()
+            if any(x in ref_val.upper() for x in ["A/C", "AMOUNT", "DATE"]):
+                re_code = re.search(r"((?:OR|IC|EC|BC)\s?\d{2}/\d{4})", ref_val, re.IGNORECASE)
+                ref_val = re_code.group(1) if re_code else None
+            fields["Reference No"] = ref_val
+        
+        # Total Value
+        val_keywords = [
+            "Amount Credited", "Total Debited", "Total Credited", 
+            "Total Amount", "Total Value", "Debit Amount", "Credit Amount", "Amount"
+        ]
+        for kw in val_keywords:
+            val_match = re.search(rf"{kw}\s*[:;]?\s*[A-Z]{3}?\s*([\d,]+\.\d{2})", text, re.IGNORECASE)
+            if val_match:
+                fields["Total Value"] = val_match.group(1).replace(",", "")
+                if "Amount Credited" in kw: break
+            
+            kw_match = re.search(rf"{kw}\s*[:;]?", text, re.IGNORECASE)
+            if kw_match:
+                lookahead_text = text[kw_match.end():]
+                all_vals = re.findall(r"(?:[A-Z]{3}?\s*)?([\d,]+\.\d{2})(?!\d)", lookahead_text)
+                if all_vals:
+                    if "Amount Credited" in kw:
+                        fields["Total Value"] = all_vals[-1].replace(",", "")
+                    else:
+                        fields["Total Value"] = all_vals[0].replace(",", "")
+                    break
+        
+        if not fields["Total Value"]:
+            val_match = re.search(r"[:;]\s*[A-Z]{3}?\s*([\d,]+\.\d{2})(?!\d)", text)
+            if val_match: fields["Total Value"] = val_match.group(1).replace(",", "")
+        
+        if not fields["Total Value"]:
+            all_vals = re.findall(r"[A-Z]{3}?\s*([\d,]+\.\d{2})(?!\d)", text)
+            if all_vals: fields["Total Value"] = all_vals[-1].replace(",", "")
+        
+        # Transaction Type
+        if re.search(r"DEBIT ADVICE", text, re.IGNORECASE):
+            fields["Transaction"] = "DEBIT"
+        elif re.search(r"CREDIT ADVICE", text, re.IGNORECASE):
+            fields["Transaction"] = "CREDIT"
+            
+        return fields
+
+class CIMBParser(BankParser):
+    def extract_chunk(self, text):
+        fields = {
+            "A/C No": None,
+            "Document Date": None,
+            "Reference No": None,
+            "Total Value": None,
+            "Bank Name": "CIMB",
+            "Company Name": None,
+            "Transaction": None
+        }
+        
+        # A/C No: "Account No." -> "2200027067340"
+        ac_match = re.search(r"Account\s*No\.?\s*([\d]+)", text, re.IGNORECASE)
         if ac_match:
-            val = ac_match.group(1).strip()
-            # Basic validation: Usually ac nos are more than 5 digits/chars
-            if len(val) >= 5:
-                fields["A/C No"] = val
-                break
-    
-    # Document Date: DD-MMM-YYYY or MMM DD, YYYY
-    # Try finding the date pattern directly if "Date :" is missing
-    date_match = re.search(r"Date\s*[;:\.]?\s*([\d]{1,2}-[\w]{3}-[\d]{4})", text, re.IGNORECASE)
-    if not date_match:
-        # Search for date pattern anywhere in the text if not near "Date"
-        date_match = re.search(r"(\b\d{1,2}-[\w]{3}-\d{4}\b)", text, re.IGNORECASE)
-    if not date_match:
-        date_match = re.search(r"([A-Z]+ \d{1,2}, \d{4})", text, re.IGNORECASE)
-        
-    if date_match:
-        fields["Document Date"] = date_match.group(1).strip()
-    
-    # Reference No: Our Ref, B/C, or look for IC/EC pattern
-    # Krungthai specific: Our Ref: OR 25/0055, EC 25/0708, IC 25/0662
-    ref_match = re.search(r"(?:Our Ref|B/C|REFERENCE NO\.|Our Ref[:;]|c/o.*?[:;])\s*[;:\.]?\s*([\w\d/ -]{5,})", text, re.IGNORECASE)
-    if not ref_match:
-         # Look for the pattern XX YY/ZZZZ directly (e.g., OR 25/0055)
-         ref_match = re.search(r"\b((?:OR|IC|EC|BC)\s?\d{2}/\d{4})\b", text, re.IGNORECASE)
-         
-    if ref_match:
-        ref_val = ref_match.group(1).strip().split('\n')[0].strip()
-        # Clean up if it matched something like "A/C No" or "AMOUNT"
-        if any(x in ref_val.upper() for x in ["A/C", "AMOUNT", "DATE"]):
-            # Try to extract just the code if possible
-            re_code = re.search(r"((?:OR|IC|EC|BC)\s?\d{2}/\d{4})", ref_val, re.IGNORECASE)
-            if re_code:
-                ref_val = re_code.group(1)
-            else:
-                ref_val = None
-        fields["Reference No"] = ref_val
-    
-    # Total Value: Amount Credited, Total Debited, etc.
-    # Prioritize specific keywords
-    val_keywords = [
-        "Amount Credited", "Total Debited", "Total Credited", 
-        "Total Amount", "Total Value", "Debit Amount", "Credit Amount", "Amount"
-    ]
-    
-    for kw in val_keywords:
-        # Try same line first
-        val_match = re.search(rf"{kw}\s*[:;]?\s*[A-Z]{3}?\s*([\d,]+\.\d{2})", text, re.IGNORECASE)
-        if val_match:
-            fields["Total Value"] = val_match.group(1).replace(",", "")
-            # If it's "Amount Credited", we are very sure, but let's check if there's a better match later
-            if "Amount Credited" in kw:
-                break
-        
-        # Try looking ahead in the chunk
-        kw_match = re.search(rf"{kw}\s*[:;]?", text, re.IGNORECASE)
-        if kw_match:
-            # Search for all currency patterns after the keyword
-            lookahead_text = text[kw_match.end():]
-            all_vals = re.findall(r"(?:[A-Z]{3}?\s*)?([\d,]+\.\d{2})(?!\d)", lookahead_text)
-            if all_vals:
-                # For "Amount Credited", the target value is often the LAST one in the section
-                if "Amount Credited" in kw:
-                    fields["Total Value"] = all_vals[-1].replace(",", "")
-                else:
-                    fields["Total Value"] = all_vals[0].replace(",", "")
-                break
-    
-    # Fallback for Total Value: Look for currency pattern following a colon if still None
-    if not fields["Total Value"]:
-        # Try to find a pattern like ': USD 123,456.78' or ': 123,456.78'
-        val_match = re.search(r"[:;]\s*[A-Z]{3}?\s*([\d,]+\.\d{2})(?!\d)", text)
-        if val_match:
-            fields["Total Value"] = val_match.group(1).replace(",", "")
-    
-    # Final cleanup: if Total Value is still None, take the last currency pattern in the chunk
-    if not fields["Total Value"]:
-        all_vals = re.findall(r"[A-Z]{3}?\s*([\d,]+\.\d{2})(?!\d)", text)
+            fields["A/C No"] = ac_match.group(1).strip()
+            
+        # Document Date: "Date:" -> "05/12/2025"
+        date_match = re.search(r"Date\s*[:]\s*(\d{1,2}/\d{1,2}/\d{4})", text, re.IGNORECASE)
+        if date_match:
+            fields["Document Date"] = date_match.group(1).strip()
+            
+        # Reference No: "SWIFT ID:" -> "CIBBSGSG"
+        # User output example shows "SWIFT ID: CIBBSGSG"
+        ref_match = re.search(r"SWIFT\s*ID\s*[:]\s*([\w]+)", text, re.IGNORECASE)
+        if ref_match:
+             fields["Reference No"] = ref_match.group(1).strip()
+             
+        # Total Value: Last number on the page/chunk (flexible)
+        # We look for currency-like patterns at the end of text
+        all_vals = re.findall(r"(?:[A-Z]{3}?\s*)?([\d,]+\.\d{2})(?!\d)", text)
         if all_vals:
-            fields["Total Value"] = all_vals[-1].replace(",", "")
-    
-    # Transaction Type
-    if re.search(r"DEBIT ADVICE", text, re.IGNORECASE):
-        fields["Transaction"] = "DEBIT"
-    elif re.search(r"CREDIT ADVICE", text, re.IGNORECASE):
-        fields["Transaction"] = "CREDIT"
-        
-    return fields
+             fields["Total Value"] = all_vals[-1].replace(",", "")
+             
+        # Transaction Type
+        if re.search(r"DEBIT ADVICE", text, re.IGNORECASE):
+            fields["Transaction"] = "DEBIT"
+        elif re.search(r"CREDIT ADVICE", text, re.IGNORECASE):
+            fields["Transaction"] = "CREDIT"
+            
+        print("Using CIMB Parser")
+        return fields
+
+class GenericParser(BankParser):
+    def extract_chunk(self, text):
+        # reuse Krungthai logic as a baseline fallback for now, or simplify
+        # For safety, let's just reuse Krungthai's logic logic but clear the Bank Name
+        parser = KrungthaiParser()
+        data = parser.extract_chunk(text)
+        data["Bank Name"] = None # Don't assume bank name
+        return data
+
+def get_bank_parser(text):
+    if "KRUNGTHAI" in text.upper():
+        return KrungthaiParser()
+    elif "CIMB" in text.upper():
+        return CIMBParser()
+    else:
+        return GenericParser()
 
 def extract_all_entries(text):
+    # Detect Parser Strategy
+    parser = get_bank_parser(text)
+    print(f"Detected Parser: {parser.__class__.__name__}")
+    
     # Map page numbers to text positions
     page_map = []
     for m in re.finditer(r"--- Page (\d+) ---", text):
         page_map.append((m.start(), int(m.group(1))))
     
-    # If no pages found, assume Page 1 (start at 0)
     if not page_map:
         page_map.append((0, 1))
 
-    # Split text into chunks based on header markers (e.g., DEBIT ADVICE, CREDIT ADVICE, RECEIPT NO)
-    # Using lookahead (?=...) so the delimiter is kept at the start of the chunk
+    # Split text into chunks based on header markers (Common checks, can be moved to parser if needed)
+    # For now, keep the split logic generic or make it robust enough for both
+    # Krungthai: DEBIT ADVICE, CREDIT ADVICE
+    # CIMB: To be determined. Assuming potentially similar or we process the whole text if splits don't apply.
     chunks = re.split(r"(?=(?:DEBIT ADVICE|CREDIT ADVICE|RECEIPT NO\.))", text, flags=re.IGNORECASE)
     
     results = []
-    last_ac_no = None  # Store the last seen A/C No to "forward-fill" if missing
+    last_ac_no = None
     
     current_pos = 0
     
@@ -205,8 +251,7 @@ def extract_all_entries(text):
         if not chunk: 
             continue
             
-        # Determine Page Number for this chunk based on its start position
-        # Find the last page marker that is before or at the start of this chunk
+        # Determine Page Number
         page = 1
         for p_start, p_num in page_map:
             if p_start <= current_pos:
@@ -214,21 +259,19 @@ def extract_all_entries(text):
             else:
                 break
         
-        # Process chunk
-        # Pre-check removed to ensure we don't skip valid chunks due to keyword casing
-        data = extract_fields_from_chunk(chunk)
+        # Strategy Extract
+        data = parser.extract_chunk(chunk)
         data["Page"] = page
         
-        # Special logic: If A/C No is missing, use the one from the previous entry
+        # Forward-fill A/C No
         if not data["A/C No"] and last_ac_no:
             data["A/C No"] = last_ac_no
         elif data["A/C No"]:
             last_ac_no = data["A/C No"]
             
-        if any(v for k, v in data.items() if k != "Page"): # Only add if at least one field found
+        if any(v for k, v in data.items() if k != "Page" and k != "Bank Name"): # Check if data found
             results.append(data)
         
-        # Advance position
         current_pos += len(chunk)
         
     return results
