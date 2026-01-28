@@ -49,24 +49,51 @@ with col1:
             st.error("Invalid source path.")
 
     if "pdf_files" in st.session_state:
-        selected_file = st.selectbox("Select PDF to process", st.session_state.pdf_files)
+        options = ["All Files"] + st.session_state.pdf_files
+        selected_file = st.selectbox("Select PDF to process", options)
         
         if st.button("🚀 Run OCR"):
             if ocr_engine == "Typhoon" and not api_key:
                 st.error("Please provide a Typhoon API Key.")
             else:
-                with st.spinner(f"Processing {selected_file}..."):
-                    pdf_full_path = os.path.join(source_path, selected_file)
-                    # Note: process_single_pdf handles engine and api_key
-                    results, raw_text = process_single_pdf(
-                        pdf_full_path, 
-                        engine=ocr_engine, 
-                        api_key=api_key, 
-                        master_path=master_path
-                    )
-                    st.session_state.current_results = results
-                    st.session_state.raw_text = raw_text
-                    st.success("OCR Completed!")
+                all_results = []
+                all_raw_text = ""
+                
+                files_to_process = []
+                if selected_file == "All Files":
+                    files_to_process = st.session_state.pdf_files
+                else:
+                    files_to_process = [selected_file]
+                
+                progress_bar = st.progress(0)
+                status_text = st.empty()
+                
+                for idx, file in enumerate(files_to_process):
+                    status_text.text(f"Processing {idx+1}/{len(files_to_process)}: {file}...")
+                    pdf_full_path = os.path.join(source_path, file)
+                    
+                    try:
+                        results, raw_text = process_single_pdf(
+                            pdf_full_path, 
+                            engine=ocr_engine, 
+                            api_key=api_key, 
+                            master_path=master_path
+                        )
+                        # Add filename to each entry for clarity in batch results
+                        for res in results:
+                            res["Source File"] = file
+                            
+                        all_results.extend(results)
+                        all_raw_text += f"=== File: {file} ===\n{raw_text}\n\n"
+                    except Exception as e:
+                        st.error(f"Error processing {file}: {e}")
+                    
+                    progress_bar.progress((idx + 1) / len(files_to_process))
+                
+                st.session_state.current_results = all_results
+                st.session_state.raw_text = all_raw_text
+                status_text.text("OCR Completed!")
+                st.success(f"Processed {len(files_to_process)} file(s).")
 
 with col2:
     st.subheader("📄 Raw Text Preview")
