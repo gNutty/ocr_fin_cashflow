@@ -183,23 +183,54 @@ def extract_fields_from_chunk(text):
     return fields
 
 def extract_all_entries(text):
+    # Map page numbers to text positions
+    page_map = []
+    for m in re.finditer(r"--- Page (\d+) ---", text):
+        page_map.append((m.start(), int(m.group(1))))
+    
+    # If no pages found, assume Page 1 (start at 0)
+    if not page_map:
+        page_map.append((0, 1))
+
     # Split text into chunks based on header markers (e.g., DEBIT ADVICE, CREDIT ADVICE, RECEIPT NO)
-    chunks = re.split(r"(?=DEBIT ADVICE|CREDIT ADVICE|RECEIPT NO\.)", text, flags=re.IGNORECASE)
+    # Using lookahead (?=...) so the delimiter is kept at the start of the chunk
+    chunks = re.split(r"(?=(?:DEBIT ADVICE|CREDIT ADVICE|RECEIPT NO\.))", text, flags=re.IGNORECASE)
+    
     results = []
     last_ac_no = None  # Store the last seen A/C No to "forward-fill" if missing
     
+    current_pos = 0
+    
     for chunk in chunks:
-        if "Total" in chunk or "A/C" in chunk:
-            data = extract_fields_from_chunk(chunk)
+        if not chunk: 
+            continue
             
-            # Special logic: If A/C No is missing, use the one from the previous entry
-            if not data["A/C No"] and last_ac_no:
-                data["A/C No"] = last_ac_no
-            elif data["A/C No"]:
-                last_ac_no = data["A/C No"]
-                
-            if any(data.values()): # Only add if at least one field found
-                results.append(data)
+        # Determine Page Number for this chunk based on its start position
+        # Find the last page marker that is before or at the start of this chunk
+        page = 1
+        for p_start, p_num in page_map:
+            if p_start <= current_pos:
+                page = p_num
+            else:
+                break
+        
+        # Process chunk
+        # Pre-check removed to ensure we don't skip valid chunks due to keyword casing
+        data = extract_fields_from_chunk(chunk)
+        data["Page"] = page
+        
+        # Special logic: If A/C No is missing, use the one from the previous entry
+        if not data["A/C No"] and last_ac_no:
+            data["A/C No"] = last_ac_no
+        elif data["A/C No"]:
+            last_ac_no = data["A/C No"]
+            
+        if any(v for k, v in data.items() if k != "Page"): # Only add if at least one field found
+            results.append(data)
+        
+        # Advance position
+        current_pos += len(chunk)
+        
     return results
 
 def lookup_master(ac_no, master_path):

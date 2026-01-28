@@ -2,8 +2,10 @@ import streamlit as st
 import os
 import pandas as pd
 import json
-from ocr_process import process_single_pdf
+from ocr_process import process_single_pdf, lookup_master
 from excel_handler import append_to_excel
+import urllib.parse
+import base64
 
 st.set_page_config(page_title="Smart Cash Flow OCR", layout="wide")
 
@@ -104,13 +106,114 @@ st.markdown("---")
 st.subheader("📊 Data Validation & Export")
 
 if "current_results" in st.session_state:
-    df = pd.DataFrame(st.session_state.current_results)
+    # Prepare data for display
+    display_df = pd.DataFrame(st.session_state.current_results)
     
-    # Data Editor
-    edited_df = st.data_editor(df, num_rows="dynamic", use_container_width=True)
+    # Ensure all columns exist
+    for col in ["A/C No", "Document Date", "Reference No", "Total Value", "Bank Name", "Company Name", "Transaction", "Source File", "Page"]:
+        if col not in display_df.columns:
+            display_df[col] = None
+
+    # Reorder columns for better UX
+    cols = ["A/C No", "Bank Name", "Company Name", "Document Date", "Reference No", "Total Value", "Transaction", "Source File", "Page"]
+    display_df = display_df[cols]
+
+    # Handle PDF Link construction
+    # Handle PDF Link construction
+    def make_pdf_link(row):
+        source_file = str(row["Source File"]) if row["Source File"] else ""
+        page_num = row["Page"] if pd.notna(row["Page"]) else 1
+        
+        file_path = os.path.join(source_path, source_file)
+        file_url = f"file:///{urllib.parse.quote(file_path.replace('\\', '/'))}#page={page_num}"
+        return file_url
+
+    # Ensure Page is filled so we don't have issues
+    display_df["Page"] = display_df["Page"].fillna(1).astype(int)
     
+    # Apply link creation and FORCE string type to avoid Streamlit error
+    display_df["PDF Link"] = display_df.apply(make_pdf_link, axis=1).astype(str)
+
+    # UI for Data Validation
+    t1, t2 = st.tabs(["📝 Edit Table", "🔍 PDF Preview"])
+    
+    with t1:
+        st.info("💡 **Tip:** Edit **A/C No** to auto-lookup Bank/Company. PDF Link may be blocked by browser; use the **PDF Preview** tab for a reliable view.")
+        edited_df = st.data_editor(
+            display_df,
+            column_config={
+                "PDF Link": st.column_config.LinkColumn(
+                    "PDF Link",
+                    help="Click to open PDF at the specific page. Note: Modern browsers block local file links. Use the PDF Preview tab for a built-in view.",
+                    validate="^file://.*",
+                    display_text="Open in New Tab"
+                ),
+                "Page": st.column_config.NumberColumn(disabled=True),
+                "Source File": st.column_config.TextColumn(disabled=True),
+            },
+            num_rows="dynamic",
+            use_container_width=True,
+            key="data_editor"
+        )
+
+    with t2:
+        if not edited_df.empty:
+            # Let user select a row to preview
+            row_idx = st.selectbox("Select row to preview PDF page", 
+                                   range(len(edited_df)), 
+                                   format_func=lambda i: f"Row {i+1}: {edited_df.iloc[i]['Source File']} (P.{edited_df.iloc[i]['Page']})")
+            
+            if row_idx is not None:
+                target_row = edited_df.iloc[row_idx]
+                target_pdf = os.path.join(source_path, str(target_row["Source File"]))
+                
+                # Safely get page number, default to 1 if missing or invalid
+                raw_page = target_row.get("Page")
+                try:
+                    target_page = int(raw_page) if raw_page and pd.notna(raw_page) else 1
+                except ValueError:
+                    target_page = 1
+                
+                if os.path.exists(target_pdf):
+                    try:
+                        with open(target_pdf, "rb") as f:
+                            base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+                        
+                        # Use iframe with #page=N
+                        pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}#page={target_page}" width="100%" height="800" type="application/pdf"></iframe>'
+                        st.markdown(pdf_display, unsafe_allow_html=True)
+                    except Exception as e:
+                        st.error(f"Error loading preview: {e}")
+                else:
+                    st.warning(f"File not found: {target_pdf}")
+        else:
+            st.info("No data available for preview.")
+
+    # Auto-matching logic for A/C No
+    if not edited_df.equals(display_df):
+        needs_update = False
+        new_results = edited_df.to_dict('records')
+        
+        for i, row in enumerate(new_results):
+            # Check if A/C No was changed or if Bank/Company is empty but A/C No exists
+            old_ac = display_df.iloc[i]["A/C No"] if i < len(display_df) else None
+            new_ac = row["A/C No"]
+            
+            if (new_ac and new_ac != old_ac) or (new_ac and not row["Bank Name"]):
+                bank, company = lookup_master(new_ac, master_path)
+                if bank or company:
+                    new_results[i]["Bank Name"] = bank
+                    new_results[i]["Company Name"] = company
+                    needs_update = True
+        
+        if needs_update:
+            st.session_state.current_results = new_results
+            st.rerun()
+
     if st.button("💾 Export & Append to Excel"):
-        msg = append_to_excel(edited_df, export_path)
+        # Remove the helper "PDF Link" column before exporting
+        export_df = edited_df.drop(columns=["PDF Link"])
+        msg = append_to_excel(export_df, export_path)
         st.info(msg)
 else:
     st.info("Run OCR to see data here.")
