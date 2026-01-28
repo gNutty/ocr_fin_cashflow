@@ -105,9 +105,12 @@ with col2:
 st.markdown("---")
 st.subheader("📊 Data Validation & Export")
 
-if "current_results" in st.session_state:
+if "current_results" in st.session_state and st.session_state.current_results:
     # Prepare data for display
     display_df = pd.DataFrame(st.session_state.current_results)
+    
+    # Reset index to ensure iloc alignment
+    display_df = display_df.reset_index(drop=True)
     
     # Ensure all columns exist
     for col in ["A/C No", "Document Date", "Reference No", "Total Value", "Bank Name", "Company Name", "Transaction", "Source File", "Page"]:
@@ -138,7 +141,9 @@ if "current_results" in st.session_state:
     t1, t2 = st.tabs(["📝 Edit Table", "🔍 PDF Preview"])
     
     with t1:
-        st.info("💡 **Tip:** Edit **A/C No** to auto-lookup Bank/Company. PDF Link may be blocked by browser; use the **PDF Preview** tab for a reliable view.")
+        st.info("💡 **Tip:** Select a row to see it in the **PDF Preview** tab. Edit **A/C No** to auto-lookup Bank/Company.")
+        
+        # Capture selection state
         edited_df = st.data_editor(
             display_df,
             column_config={
@@ -155,37 +160,51 @@ if "current_results" in st.session_state:
             use_container_width=True,
             key="data_editor"
         )
+        
+        # Fallback to manual selection via selectbox since interactive selection is not supported in this env
+        default_idx = 0
 
     with t2:
         if not edited_df.empty:
-            # Let user select a row to preview
+            # Let user select a row to preview (linked to table selection)
+            # Ensure index is within range
+            if default_idx >= len(edited_df):
+                default_idx = 0
+                
             row_idx = st.selectbox("Select row to preview PDF page", 
                                    range(len(edited_df)), 
+                                   index=default_idx,
                                    format_func=lambda i: f"Row {i+1}: {edited_df.iloc[i]['Source File']} (P.{edited_df.iloc[i]['Page']})")
             
             if row_idx is not None:
                 target_row = edited_df.iloc[row_idx]
-                target_pdf = os.path.join(source_path, str(target_row["Source File"]))
-                
-                # Safely get page number, default to 1 if missing or invalid
-                raw_page = target_row.get("Page")
-                try:
-                    target_page = int(raw_page) if raw_page and pd.notna(raw_page) else 1
-                except ValueError:
-                    target_page = 1
-                
-                if os.path.exists(target_pdf):
-                    try:
-                        with open(target_pdf, "rb") as f:
-                            base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-                        
-                        # Use iframe with #page=N
-                        pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}#page={target_page}" width="100%" height="800" type="application/pdf"></iframe>'
-                        st.markdown(pdf_display, unsafe_allow_html=True)
-                    except Exception as e:
-                        st.error(f"Error loading preview: {e}")
+                source_val = target_row["Source File"]
+                if not source_val or pd.isna(source_val):
+                    st.warning("No source file specified for this row.")
                 else:
-                    st.warning(f"File not found: {target_pdf}")
+                    target_pdf = os.path.join(source_path, str(source_val))
+                    
+                    # Safely get page number, default to 1 if missing or invalid
+                    raw_page = target_row.get("Page")
+                    try:
+                        target_page = int(raw_page) if raw_page and pd.notna(raw_page) else 1
+                    except ValueError:
+                        target_page = 1
+                    
+                    st.markdown(f"**Viewing:** `{source_val}` | **Page:** `{target_page}`")
+                    
+                    if os.path.exists(target_pdf):
+                        try:
+                            with open(target_pdf, "rb") as f:
+                                base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+                            
+                            # Use iframe with #page=N
+                            pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}#page={target_page}" width="100%" height="800" type="application/pdf"></iframe>'
+                            st.markdown(pdf_display, unsafe_allow_html=True)
+                        except Exception as e:
+                            st.error(f"Error loading preview: {e}")
+                    else:
+                        st.warning(f"File not found: {target_pdf}")
         else:
             st.info("No data available for preview.")
 

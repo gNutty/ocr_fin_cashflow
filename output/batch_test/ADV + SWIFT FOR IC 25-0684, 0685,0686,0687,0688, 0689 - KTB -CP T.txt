@@ -1,0 +1,1069 @@
+--- Page 1 ---
+16-12-25)15613 ,)                  ‘CP Tdg Singapore )            # 6/ 28
+
+Krungthai
+ทรุงไทย
+
+SINGAPORE BRANCH: 6ธ5 Chulla Street, #32-D5/07, OCBC Centre, 9!ก9ธวอ๐กอ 049513, TEL: (ธ6) 6533 6691, FAX; (65) 6533-0930
+Co, Red. No. : 594ห๐47355
+
+To:                                                 DEBIT ADVICE
+
+CP Trading Co Ltd                                  Date :             16-Dec-2025
+British Virgin Islands
+
+c/o 6001 Beach Road                                               Our Ref:           IC 25/0684
+#14-01 Golden Mile Tower
+
+Singapore 199589
+
+A/CNO:     9943-000613-001                                  :       USD 138,324.38
+
+We have today DEBITED your USD account with us, details as follow :-
+
+DOCUMENTS FOR           USD 138,208.00
+DRAWER: MAHESH EDIBLE OIL MANUFACTURES PVT LTD
+
+Bill Amount                                                                        : USD               138,208.00
+0.0625% commission                                                             : USD                      86.38
+Swift                      |                                                            : USD                      30.00
+Total Debited                                                                       : USD                138,324.38
+
+Remarks: As per your instructions, we will courier the documents to
+Khun Maria Samlee, Bangkok, Thailand.
+
+Yours Sincerely,
+For KRUNG THAI BANK PUBLIC COMPANY LIMITED
+Singapore Branch
+
+Aw WN.
+
+AUTHORISED SIGNATURE
+
+
+--- Page 2 ---
+16-12-25)15:13 )                CP Tdg Singapore ;
+
+16/12/25-06:06:45         KRTHSGSGIAP 0 6-0207—-000225           1
+
+ta i a - - ----
+
+--- ขมขจะนะนะระร๓>๓=-=๓๐๑๕๓  Instance Type and Transmission +======-=----->
+Notification (Transmission) of Original sent to SWIFTNet (ACK)
+Network Delivery Status : Network Ack
+Priority/Delivery        : Normal              ”
+
+Message Input Reference ; 0606 251216swift_finplus000633000011694
+
+=๓=-=-------A a a a Message Header ---=๒๑===๒๓๓๓----------ร -=
+
+MX Input     : paes.009,001.08 CBPRPLUs=pacs.009,001.08_FinancialinstitucionCxedit
+Transfar
+
+Requestor DN : ou=xxx, opkrthsgsg, o=swift
+
+Responder DN : ou=xxx, osirvtus3n, osswiit 7
+
+UETR : 946364b7=b0c8~49db-b0d1-38223586ffec
+
+Service Name : swift.finplus
+
+Non-repudiation Indicator: False     ;
+
+SWIFT Reference: swi04003-2025-12-16706:06:41.59484 8972412
+
+SWIFT Request Refexence: SNL10233-2025~12-16T06:06:41.2104064. 2452252
+
+CBT Refexence: 2b57122a-da29-41£0-ad7a-659cabi7a673
+
+Store-and-forward Input Time: 0402:2025-12-16T06:06:41
+
+Signing DN   : on=%1, ouslite2, o=krthsysg, owswift
+
+๒@๓๒๓--------=====-==----- Message Text -----ซด====๓-----------==--
+
+<ธออนิศั รถเไทตร"นหตะ15๐ะ80ิตะร86:20022:06๐ตะ2%ธ๕ะ5๑ล๕.001.001.02">
+<ถึ๒>                                           ,
+<FIId>
+<FinInstnid>
+<BICFI>KRTHSGSG</BICEFI>
+</FinInstniId>
+</FItd>
+</Pr>
+<To>
+<FIId>
+<FinInstnid>
+<BICFT>IRVIUS3N</BICFI>
+</FininstniId>
+</FIId>
+</To>       |
+<BizMsgidr>Ic 25/0684</BizMsgidr>
+<MsgDefIdr>paca.009.001.08</MsgDefldr>
+<BizSvc>swift.cbprplus.03</BizSve>
+<CreDt>2025+12-16T08:36:55400:00</Cradt>
+</AppHdr>
+<Document xmlns="urn:iso:stdiiso:20022;tech:xsd:pace.009,001.08">
+<FICdtIri>
+<GrpHdr>
+<MsgId>Ic¢ 25/0684</MsgId>
+<CreDttm>2025-12-1 6116: 49:33+00:00</CreDtTm>
+<NbOfTxg>1</NbOLTxs>
+<Sttlmint>
+<SttlmMtd>INDA</Sttlmmtd>
+</stulmint>
+</GrpHdr>
+<CdtTrfTxIn£>         a
+<PmtId>
+<Inatrid>Ic 25/0684</Instrid>
+<EndToBndId>0727825GC0B10347</EndToEndId>
+<TxId>IC 25/0684</TxId>
+<UETR> 9463 64b7=b0c8-4 9db-b0d1-38223586ffec</UETR>
+</PmtId>                                         ”
+<InuxrBkSttlmaAmt Ccoy="USD">138208 .00</TntrBkSttimaAmt>
+<IntxrBkSevlmDt>2025-12-16</IntrcBksStrlmDt>
+<instgAgt>
+<Fininetnid>
+<BICFL>KRTHSGSG</BICFI>
+</FinInstnid>
+</Instgagt>
+<Instdage>
+
+# 15/ 28
+
+
+--- Page 3 ---
+16-12-25)156เ13 |                        .     CP Tdg Singapore
+
+16/12/25-06:06:45         KRTHSGSGIAP 0 6-0207-000225            2
+
+a ------------ฟๆ
+
+<FininstnId>
+<BICFI>IRVTUS3N</BICFI>
+</FinInstnid>
+</Instdagt>
+<Dbtz>
+<FinInstniId>
+<BICFI>KRTHSGSG</BICEL>
+</FinInstnid>
+</Dbtr>
+<CdtrAgt>
+<riniInstnid>
+<BICPI>SBINUS33</BICFI>
+</PinInstntid>
+</Cdt rAge>
+<Cdtz>
+<FinInstnId>
+<BICFI>SBININBB133</BICFI>
+</FinInstnid>
+</Cdatr>
+<CdrrAact>
+<Id>
+<Othr>
+<Id>77600121220001</iId>
+</othr>
+</Id>
+</Cdtracen>
+
+</CdtTrfTxInt>
+
+</FICdtTrf>
+</Doaument>
+
+eeeew ne ee Interventions --
+
+Category      + Network Report
+Creation Time : 16/12/25 06:06:41
+Application   : SWIFTNet Interface
+
+Operator      : SYSTEM
+
+Text
+
+<AckNack>   a
+<PseudoAckNack>
+
+{11 F21KRTHSGSGAXXX000633000011694) (43 (17722512160606) (452;0) (31
+
+1:ACK) )</PseudoAckNack>
+
+</AckNack>
+
+# 16/ 28
+
+
+--- Page 4 ---
+16-12-25)15:13 )         CP Tdg Singapore ,        ,   # 7/ 28
+
+Krungthai
+กรษ์นิ  ทย
+
+SINGAPORE BRANCH; 66 Chulla Streat, 232-05/07, OCBC Centra, Singapore 049513, TEL: (65) 6533 6691, FAX: (65) 6533-0930
+Co. Red. No. : SO4FC4735E
+
+To:                    .                                 DEBIT ADVICE
+
+CP Trading Co Ltd                                        :             16-Dec-2025
+British Virgin Islands
+c/o 6001 Beach Road                                                  ‘         10 25/0685
+
+#14-01 Golden Mile Tower
+Singapore 199589
+
+A/CNO:     9943-000613-001                                  :       USD 140,095.09
+
+We have today DEBITED your USD account with us, details as follow :-
+
+DOCUMENTS FOR           USD 139,977.60
+
+DRAWER: MAHESH EDIBLE OIL MANUFACTURES PVT LTD
+
+Bill Amount -                             ‘         : USD               139,977.60
+0.0625% commission                                                             : USD                       87.49
+Swift                          |                                                        : USD                      30.00
+Total Debited                                                                       : USD               140,095.09
+
+_ Remarks: ร per your instructions, we will courier the documents to
+Khun Maria Samlee, Bangkok, Thailand.
+
+Yours Sincerely,
+For KRUNG THAI BANK PUBLIC COMPANY LIMITED
+Singapore Branch
+
+/(//ผงป,
+
+AUTHORISED SIGNATURE
+
+
+--- Page 5 ---
+16-12-25)15:13 )       )               CP Tdg Singapore ;      )        # 17/ 28
+
+16/12/25-06:06:14          KRTHSGSGIAP06-0206-000224             1
+
+Sorte=-===-=--- Instance Type and Transmission ===๓==--๓-----
+Notification (Transmission) of Original sent te SWIFTNet (ACK)
+Network Delivery Statua : Natwork Ack
+
+Priority/Delivery        : Normal              ’
+Message Input Reference : 0606 25121 6swift_finplus000633000011693
+-------รศพ --------- Message Header -------======ฯจ----------
+MX Input     : pacs.009.001.08 CHPRP1lus-paca.009.001,08_FinancialInstitutionCredit
+Transfer
+
+Requestor DN : ou=xx#x, oskrthagsg, o=swift
+Responder DN : ou*xxx, o=irveus3n, omswift
+UETR : ele6f4d8—44a43—-400d-8741~122e74819628
+Service Name : swift.finplus
+Non-xepudiation Indicator: False
+SWIFT Reference: swi04003=2025-12-16T06;06:11.59421.3260592
+SWIFT Request Reference: SNL10233=2025-12~-16T06;06:10.2104055.2454882
+CBI Reference: OcdSéd60-da29-41f0-ad7a-d43b5a4Bab65
+Store-and~forward Input Time: 0402:2025-12-16T06:06:12
+Signing DN   : on=1, oumLite2, o=krthsgsg, omswift
+em=- ๑==-====-- Massage Text ๓๓-------ร๑๓====-----------
+<AppHdr ๓ไทสต"แหต1489๐ะ8น6๕:18อะ20022:ขซอ๑๕โกะ%ส๕ะตอ๑ส๕.001.001.02">
+<ธอ๒>
+«สฮา6>
+<FinInstnid>
+<BICFIOKRIHSGSG</BICFI>
+</PinInstnid>
+</FIId>
+</Fr>
+<To>
+<ritd>
+<FinInatnid>
+<BICFI>IRVTUS3N</BICFI>
+</FinInstnid>
+</FIId>
+«</To>
+<BizMsgidr>Ic 25/0685</BizMsqidr>
+<Msgdefidr>pacs.009,001.08</MsgDefidr>
+<BizSvc>swift .cbprplus.03</BizSve>
+<CreDt>2025-12-16T08:36:554+00:00</CreDr>
+</AppHdr>
+<Document xmlnss"urn:iso:std:4gs0:20022:tach:xsd:pacs .009.001.08">
+<FICdtTrf>
+<GrpHdr>
+<Msqgid>IC 25/0685</Msgld>
+<CreDtTm>2025-12-16T16: 49: 334+00:00</CreDttm>
+<NbO£TxXS>1</NbOLTxs>
+<strimint>
+<Sttlamtd>INDA</Stt lmmtd>
+</sttimin£>
+</GrpHdr>
+<CdtTrfTxin£>                   A
+<PmtId>
+<InstrId>Ic 25/0685</Instrid>
+<EndToEndtd>0727825GC0B1i0348</EndToEndiId>
+<TxXId>IC 25/0685</Tx1d>
+<UETR>e106£4d8-4e43-400d-8741-122074e619628</UETR>
+</pmtId>                                           cf
+<IntrBkStrlmAmt Coy="USD">139977.60</IntrBkSsttlmaAmc>
+<IntrBkStt lmDt>2025-12-16</IntrBkSttlmDt>
+<Inatgaqt>
+<FiniInstnId>
+<BICFI>KRTHSGSG</ BICKEI>
+</PinInstnid>
+</InstgAgt>
+<Instdagt>
+
+
+--- Page 6 ---
+16-12-25)15:13 )
+
+16/12/25-06:06:14
+
+<FinInstnid>
+<BICFI>IRVIUSIN<
+</FinInstnid>
+</Instdagt>
+<Dbtr>
+<PinInstnid>
+<BICFI>KRTHSGSG<
+</FinInstnid>
+</Dbtr>
+<Cdtxragt>
+<FinInstnId>
+<BICFI>SBINUS33<
+</PininatnId>
+</Cdtragt>
+<Cdtr>
+<FinInstnid>
+<BICFI>SBININBBL.
+</FinInetnId>
+</Cdtr>
+<CdtrAcct>
+<Id>
+<Othr>
+<Id>7760012122
+</oOthr>
+</Id>
+</CdtraAcet>
+</CdtTr£fTxInt>
+</PIcdbTrf>
+</Document>
+
+cP Tdg Singapore
+
+KRTHSGSGIAP06-0206-000224
+
+/BICEI>
+
+/BICrI>
+
+/BICFI>
+
+33</BICFI>
+
+0001</1d>
+
+Interventions
+
+Category      ¢ Network Report
+
+Creation Time : 16/12/25 0
+Application   : SWIFTNet I
+Operator      : SYSTEM
+Text
+<AckNack>
+
+<PseudoAckNack>
+
+(1:F21KRTHSGSGAXXX%000633000011693} (4: (177:2512160606) (451:0) (31
+
+1:ACK} }</PseudoAckNack:
+</ackNack>
+
+6:06:10
+nterface
+
+>
+
+ง
+
+# 18/ 28
+
+
+--- Page 7 ---
+10-12-25915613 )                  CP Tdg Singapore ;            # 8/ 28
+
+Krungthai
+ทรงฝ้าย
+
+SINGAPORE BRANCH; 85 Chulla Street, #32-05/07, OCBC Centre, Singapore 048813, TEL: (65) ธ533 6691, FAX: (65) 6533-0830
+So. Raa. No. ¢ S9S4FC4735E
+
+To:                                                          DEBIT ADVICE
+
+CP Trading Co Ltd                                   Date :             16-Dec-2025
+British Virgin Islands
+
+c/o 6001 Beach Road                                               Our Ref:           IC 25/0686
+#14-01 Golden Mile Tower
+
+Singapore 199589
+
+A/C NO:        9943-000613-001                                AMOUNT :          USD 153,022.36
+
+We have today DEBITED your USD account with us, details as follow :-
+
+DOCUMENTS FOR           USD 152,896.80
+
+DRAWER: MAHESH EDIBLE OJL MANUFACTURES PVT LTD
+
+Bill Amount                                                                         : USD                152,896.80
+0.0625% commission                                                             : USD                       95.56
+Swift                                                                                 : USD                       30.00
+Total Debited                                                                       : USD                153,022,36
+
+Remarks: As per your instructions, we will courier the documents to
+Khun Maria Samlee, Bangkok, Thailand.
+
+Yours Sincerely,
+For KRUNG THAI BANK PUBLIC COMPANY LIMITED
+
+Singapore Branch
+
+4
+
+AUTHORISED SIGNATURE
+
+
+--- Page 8 ---
+-12-25;15:13 )                    "CP Tdg Singapore ;               # 19/ 28
+
+16/12/25-06:05:413         KRTHSGSGIAP 0 6-0205-=000223           1
+
+oe  Instance Type and Transmission =-~-~--------z
+Notification (Transmission) of Original sent to SWIFINet (ACK)
+Natwork Delivery Status +: Network Ack
+Priority/Delivery Normal
+Message Input Reference : 0605 25121 6swi£t_£inp1us000633000011 692
+Sr es rr renee Message Haadar =====๓๑=๓------------==---
+MX Input     : pacs.009.001.08 CBPRPLus-pacs.009.001.08. Financial insticutdoncredit
+Transfer
+Requestor DN : ov=xxx, o=krthsgsg, o=swift
+Responder DN : ou=xxx, oirvtus3n, o=swift
+VETR : £620702a~eb31—4683-a867~468d07£a3686
+Service Name : swift.finplus
+Non-repudiation Indicator: False
+SWIFT Reference: swi04003-2025-12-16T06:05:08.56556.8970092
+SWIFT Request Reference: $NL10233=2025-12-16T06:05:08.2104055.2454562
+CBT Reference: e2f£d0e8a~da28-41£0-ad7a—-73962c20h600
+Store-and-forward Input Time: 0402:2025=12-16T06:05:08
+Signing DN   : cn=%1, ou=Lite2, ompkrthsgqsg, osswift
+------=-=-----๓ --------=-- Meggage Tax --======๓๓----------====----
+<2๒๒พีฉ่อ xmlng="urn:isorstd:iso:20022:tech:xsd:head.001,001.02">
+<Fr>
+<FIId>
+<FiniInstnid>
+<BICPI>KRTHSGSG</BICFI>
+</PinInstnid>
+</BIId>
+</Fr>
+<To>
+<FIId>
+<FinInstnid>
+<BICPLI>IRVIUS3N</BICFI>
+</FinInstntd>
+</PIId>
+</To>
+<BizMsgldreIC 25/0686</BizMsqidx>
+<MagDefIdr>pacs .009.001.08</Msqdefldr>
+<BizSve>swift.cbprplus.03</BizSvc>
+<Crept>2025-12-16T08 :36:55+00:00</CraDt>
+</AppHdr>
+<Document xmlngs"uyxn:iso:std:iso:20022:tech:xsd:pacs.009.001.08">
+<FICdtTrt>
+<GrpHdr>
+<MsgId>Ic 25/0686</MagId>
+<CreDtIm>2025-12-16T16:49:33400:00</CreDtTm>
+<NbOfTxS>1</NbOfTxs>
+<Sttlminf>
+<SttlmMtd>INDA</Stt lmMtd>
+</Sttiminf>
+</GrpHdr>
+<CdtTritxini>           /
+<Pmt Td>
+<Instrid>Ic 25/0686</Instrid>
+<EndToEndId>0727825GC0B10351</EndToEndId>
+<TxId>IC 25/0686</TxId>
+<UETR> £620702a-eb31-4 683-a867—468d07 £a3 686</UETR>
+</Pmtid>                        ศ์
+<IntrBkstctlmAmt Coy="USD">152896.80</IntrBkSttimame>
+<IntrBkSttlmDe>2025-12-16</IntrBkSttimDt>
+<InstgAgt>
+<FinInstnid>
+<BICFI>KRTHSGSG</BICFI>
+</FinInstniId>
+</Instgagt>
+<Instdagt>
+
+
+--- Page 9 ---
+16-12-25;15:13 ;           :                  CP Tdg Singapore
+
+16/12/25~06:05:13         KRTHSGSGIAP 06-0205-000223            8
+i
+<FinInstnid>
+<BICFI>IRVIUS3IN</BICFI>
+</FinInstnid>
+</InstdAgt>
+<Dbtr>
+<FintnstnId>
+<SICFI>KRIHSGSG</BICFI>
+</FiniInstnid>
+</Dbtr>
+<CdtrAgrt>
+<FinInstnid>
+<BICFI>SBINUS33</BICFI>
+</FinInstnid>
+</Cdtragt>
+<Cdtxr>
+<FinInstnid>
+<BICFI>SBININBB133</BICFI>
+</FinInstnId>
+</Cdtr>
+<CdtraAcat>
+<Id>
+<Othr>
+<Id>77600121220001</Id>
+</Othr>
+</Td>
+</CdtrAcct>
+</CdtTrfTxIni>
+</FiCdtTrf>
+</Document>
+Flash helene ent nen eaten ee Interventions -~
+Category      : Network Report
+Creation Time : 16/12/25 06:05:08
+Application : SWIFTNet Interface
+
+Operator ©    +, SYSTEM
+
+Text
+
+<AckNack>   co
+<PseudoAckNack>
+
+{ 1: F21KRTHSGSGAXXX000633000012692) (4+ (1772512160605) (451:0) (31
+ACK) )</PsaudoAckNack>
+</AckNack>
+
+# 20/ 28
+
+
+--- Page 10 ---
+18-12-25)15:13 )              CP Tdg Singapore ;         # 9/ 28
+
+km Krungthai
+กรุงไทย
+
+SINGAPORE BRANCH: 65 0แนแล Street, ศี32-05/07, OCBC Centra, 9โทธร๒๐อ 049513, TEL: (66) 6533 6591, FAX: (65) 6633-0930
+”                                        Go. Red. No. : S94FC4735E
+
+To:                                                          DEBIT ADVICE
+
+CP Trading Co Ltd                                  Date :             16-Dec-2025
+British Virgin Islands
+
+c/o 6001 Beach Road                                           Our Ref:          IC 25/0687
+#14-01 Golden Mile Tower
+
+Singapore 199589
+
+A/CNO: 9943-000613-001                                                  :          USD 56,267.13
+
+We have today DEBITED your USD account with us, details as follow :-
+
+DOCUMENTS FOR     USD 56,202.00
+
+DRAWER: VIPUL EXIM
+
+Bill Amount                    ‘         : USD       56,202.00
+0.0625% commission                        : USD         35,13
+Swift                                 : USD         30.00
+
+Total Debited                                                                           : USD                  56,267.13
+
+Remarks: — As per your instructions, we will courier the documents to
+Khun Maria Samlee, Bangkok, Thailand.
+
+Yours Sincerely,
+For KRUNG THAI BANK PUBLIC COMPANY LIMITED
+Singapore Branch
+
+Mt
+
+AUTHORISED SIGNATURE
+
+
+--- Page 11 ---
+16-12-25)15:13 )                       CP Tdg Singapore ;                # 21/ 28
+
+16/12/25-06:08:51         KRTHSGSGIAP 06-0208-000226           1
+-------=--====------- Instance Type and Transmission -----------=-==
+Notification (Transmission) of Original sent to SWIFTNet (ACK)
+Network Delivery Status : Network Ack
+Priority/Delivery        + Normal
+Massage Input Reference : 0608 25121éswift_finplus000633000011695
+re 0 nn te Message Headex ~-------—-—-—— see seen
+MX Input     ะ pacs.009.001.08 CBPRPus-pacs.009.001.08 _FinancialInstitutionCredit
+Transfer
+
+Requestor DN : ou=xxx, o=krthsgsg, omswiit   ซ
+Responder DN : อ๑น=๓๕,๐=1หหยนรวิต,อ๐อ=ขน4ชัอ
+UETR : 7leeb47d-£648-4674-8d52-b3480cGb7160
+Service Name ะ swift.finplus
+Non-repudiation Indicator: False
+SWIFT Reference: swi104003-2025-12-16706:08:45,59243.8967812
+SWIFT Requast Reference; 5NL10233-2025-12-16T06:08:45.2104051.2455672
+CBT Raference: ไชป็แน56๐7๑-ศล2๑-41ไช้0-๕๕7ล-สดล75567อ๐ร00
+Store-and-foerward Input Time: 0402:2025-12-16306ะ:08:45
+Signing DN   + ens$l,ouelire2, okrthsgag, o=swift
+ฑพ---------======---------== Message Taxth =-====๓๓=--------======----
+<AppHdr xmins="urn:iso:std:is0:20022:tech:xsd:head.d01,001.02">
+<Fr>
+<FIId>
+<FinInstnid>
+<BICFI>KRTHSGSG</BICFI>
+</PininstnId>
+</FIId>
+</Fx>
+<To>
+<FITd>
+<FinInstniId>
+<BICFI>IRVTUS3N</BICFI>
+</FinInstnId>
+</FIIA>
+</To>
+<BizMsyldr>I¢ 25/0687</BizMagidr>
+<MsgDefIdr>pacs .009.001.08</MsgdDetIdz>
+<BizSva>swift.cbprplus.03</BizSve>
+<CreDt>2025-12-16T08 :36:55+00:00</CreDt>
+</AppHdr>
+<Document xmins="urnsisoratd:iso:20022:tech:xsd:pacs.009.001.08">
+<FICdttTxri>
+<GrpHdr>
+<Magid>Ic 25/0687</Msgld>
+<CreDtTm>2025-12-16T16:49:33400:00</CreDrTm>
+<NbOfTxs>1</NRO£Txs>
+<Sttlminf>
+<SttlmMtd>INDA</SttlmMcd>
+<«/ธถอยใญ่โทธ์>
+</GrpHdr>
+<CdtTrfTxInf>
+<PmtId>                              ศ์
+<Instrid>Ic 25/0687</InstxId>
+<EndToEndid>C73DB50253440002</EndToEndid>
+<TxId>IC 25/0687¢/TxLd>
+<UETR>7 1 ocb47d-£648-4874-8452-b3480¢6b7160</UBTR>
+</PmtId>                      “
+<IntrBkstulmAmt Cey="USD">56202,00</IntrBkSttlmAmt>
+'        <IncrBkStt lmDt>2025-12-16</InurBkSttimbDt>
+<InstgAgt>
+<FiniInstnid>
+<BICFI>KRTHSGSG</BICFI>
+</PinInstnid>
+</Instgage>
+<InatdAgt>
+
+
+--- Page 12 ---
+16-12-25,15:113 )                      CP Tdg Singapore ;               # 22/ 28
+
+16/12/25-06:08:51          KRTHSGSGIAP06-0208-000226            2
+
+<FinInstnid>                                                                  ‘
+<BICFI>IRVTUS3N</BICFI>         ‘
+</FinInstnid>
+</Inetdagt>
+<Dbtr>
+<FinInstniId>
+<BICFI>KRTHSGSG</BICFI>
+</Fininstnid>
+</Dbtr>
+<Cdtragt>
+«FinInstnid>
+<BICFL1>BOFAUS3N</BICEI>
+</Fininstnid>
+</CdtxraAgu>
+<Cdtr>
+<FinInstnid>
+<BICFI>HDFCINBB</BICFI>
+</FinInstnid>
+</Cdtx>
+<CdtrAcct>
+<Id>
+<Othr>
+<$Id>6550492079</Td>
+</Othx>
+</Td>
+</CdtrAcct>
+</CdtTritTxiIns>
+</FICKtTr£>
+</Document>
+------======๓๓---------=====- Interventions --
+Category      : Network Report
+Creation Time : 16/12/25 06:08:45
+Application   : SWIFTNet Interface
+Operator      : SYSTEM
+Text      /         .
+<AckNack>
+<PseudoAckNack>
+(1 sF2LKRTHSGSGAXXX000633000011695) (41(17722512160608) (451:9) (31
+1:ACK} }</PseudoAckNack>
+</AckNack>
+
+
+
+--- Page 13 ---
+18-12-25615:13 ,)             )         CP Tdg Singapore ;              # 10/ 28
+
+Krungthai
+กรุงไทย
+
+SINGAPORE BRANCH: 6ธ6 6หนแรธ Street, #32-05/07, OCBC Centra, Singapore 049913, TEL: (66) 6533 6691, FAX: (66) 6533-0930
+.                                             .                                     Co, Rea. No. : S94FCA735E
+
+To:                                                          DEBIT ADVICE
+
+CP Trading Co Ltd                                        :            16-Dec-2025
+British Virgin Islands                                                                                                 .
+c/o 6001 Beach Road                                                  :         16 25/0688
+
+#14-01 Golden Mile Tower
+Singapore 199589
+
+A/JCNO:     9943-000613-001                                 :      USD 55,618.72
+
+We have today DEBITED your USD account with us, details as follow :-
+
+DOCUMENTS FOR     USD 55,554.00
+
+DRAWER: VIPUL EXIM
+
+Bill Amount                             : USD       55,554.00
+0.0625% commission                        : USD         34,72
+Swift                                  : USD         30.00
+Total Debited                  :          : USD       55,618.72
+
+Remarks: As per your instructions, we will courier the documents to
+Khun Maria Samlee, Bangkok, Thailand.
+
+Yours Sincerely,
+For KRUNG THAI BANK PUBLIC COMPANY LIMITED
+Singapore Branch
+
+out W
+
+AUTHORISED SIGNATURE
+
+
+--- Page 14 ---
+16-12-25)15:113 ,               )              CP Tdg Singapore ;                    # 23/ 28
+
+16/12/25-06:09;21         KRTHSGSGIAPO6~0209-000227           1
+
+---ฯ-๒=====--======== Instance Type and Transmission ---------=-=--
+Notification (Transmission) of Original sent to SWIFTNet (ACK)  aA
+Network Delivery Status : Network Ack
+
+Priority/Delivery        : Normal
+Message Input Reference : 0609 25121é6swift_finp1us000633000011696
+SS om ee Message Haadar =-===-----------te 0 no mm
+MX Input     + pacs.009.001.08 CBPRPLus-pacs.009.001.08_FinancialinstitutionCredit
+Transfer
+
+Requestor DN : ou=xxx, o=krthsgsg, owswift
+Responder DN : ou-xxx, o=irvtus3n, omsswift
+
+UETR : febO8f£cf—3b44-4£8b-sbc0—-6£61250F2941
+
+Service Name ; swift. finplus
+
+Non-repudiation Indicator: False
+
+SWIFT Reference: swi04003~2025-12-16106:09:16.59243.8969832
+
+SWIFT Request Reference: SNL10233+2025-12-16T06:09:16.2104052.2452502
+CBT Reference: S5e9b860e-da2e—41£0-ad7Ta-dddal275982a
+Store-and-forward Input Time: 0402:202S-12-16T06:09:16
+
+Signing DN   : ane*$1,ou=lire2, oxkrthagsa, omswift
+
+<AppHdr xmins="urniisorstdiiso:200Z2:tech:xad:nead.001,001.02">
+<Fr>
+<FIId>
+<FinInstnid>
+<BICFI>KRTHSGSG</BICFI>
+</PinInstnid>
+</FIId>
+</Pr>
+<To>
+<FIId>
+<FinInstnId>
+<BICFI>IRVIUS3N¢/BICFI>
+</FininstniId>
+</PIId>
+</To>
+<BizMsgldr>IC 25/0688</BizMsgidr>
+<Msgdefldr>pacs .009.001.08</MsgDefIar>
+<BizSvc>awift.cbprplus.03</BizSvc>
+<CreDt>2025-12-16T08 :36:55+00:00</CreDt>
+</AppHdr>
+<Document xmins="urniiso: std:iso:20022:tech:xsd:pads.009,.001,08">
+<FICdtTrf>
+<GrpHdr>
+<Msgid>ICc 25/0688</Msgid>
+<CreDt Tm>2025-12=16T16: 49:33+00;00</CredcIm>
+<NbOfLTxsS>1</NbOLTxa>
+<sttlmin£>
+<SttlmMt d>InDA</SttlmMtd>
+</Sttlmin£>
+</GrpHdr>
+<CdtTreTxiInf>
+<Pmtld>            ซี
+<InstxrideIc 25/0688</instrid>
+<EndToEndId>C73DE50253440003</EndTozndid>
+<TxId>Ic 25/0688</TxId>
+<UETR> fab06fcf-3b44~4£Bb-8boN-6£61250£2941</UETR>
+</Pmtid>                      ศ์
+<IntrBksttlmame Ccy="USD">55554.00</IntrBkSttlmamr>
+<IntrcBkSttlmdt>2025-12-16</IntrBkStulmDt>
+<InstgAgt>
+<FinInstnid>
+<BICPI>KRTHSGSG</BICFI>
+</FinInstnid>
+</InstgAgt>
+<InstdaAgt>
+
+
+--- Page 15 ---
+18-12-25615:13 )
+
+CP Tdg Singapore
+
+16/12/25-06:09:21         KRTHSGSGIAP 0 6-020 9-000227
+
+<Fininstnid>
+<BICFI>IRVIUSIN</BICEI>
+</FinInstnid>
+</Instdagn>
+<Dbtr>
+<FinInstnid>
+<BICF I>KRTHSGSG</BICFI>
+</FinInstnId>
+</Dbtr>
+<Cdtragr>
+<PinInstnid>
+<BICFI>BOFAUS3N</BICFI>
+</BinInstnid>
+</CdtrAgt>
+<Cdtr>
+<Pininstnid>
+<BICFI>HDFCINBB</BICFI>
+</FinInstnid>
+</Cdtr>
+<CdtrAcct>
+<Id>
+<Othr>
+<Td>6550492079</Td>
+</Othr>
+</Id>
+</CdtraAace>
+</CdtTrfTxInf>
+</FICdtTr£>
+</Document>
+rr mn Interventions ==
+Category      : Network Report
+Creation Time : 16/12/25 06:09:16
+Application   : SWIFTNet Interface
+
+Operator        SYSTEM
+
+Toxt        ซ์
+
+<AckNack>
+<PseudoAckNack>
+
+{L:F21KRTHSGSGAXXX000633000011696) (4:1177:2512160609} {451:0) (31
+
+4: ACK} }</PseudoAckNack>
+</AckNack>
+
+ง
+
+# 24/ 28
+
+
+--- Page 16 ---
+6-12-25;16:13 ) 0]               CP Tdg Singapore 7)         # 11/ 28
+
+Krungthai
+ทรงป้าย
+
+SINGAPORE BRANCH :      6S Chulla Street, #32-06/07, OCBC Centra,  Singapore 045513, TEL: (65) 6533 6691, FAX:  (65) 6633-0930
+๐0๐. Req. No. : S94FC4735E
+
+To:                                                          DEBIT ADVICE
+
+CP Trading Co Ltd                                      Date :              16-Dec-2025
+British Virgin Islands
+
+c/o 6001 Beach Road                                           Our Ref:           IC 25/0689
+#14-01 Golden Mile Tower
+
+Singapore 199589
+
+AICNO: — 9943-000613-001                               : 7ป0 55,618.72
+
+We have today DEBITED your USD account with us, details as follow :-
+
+DOCUMENTS FOR       USD 55,554.00
+DRAWER: VIPUL EXIM
+
+Bill Amount                            : USD      55,554.00
+0.0625% commission                       : USD      34.72
+Swift                               : USD         30.00
+Total Debited    ,                       : USD .     55,618.72
+
+Remarks: As per your instructions, we will courier the documents to
+Khun Maria Samlee, Bangkok, Thailand.
+
+Yours Sincerely,
+For KRUNG THAI BANK PUBLIC COMPANY LIMITED
+Singapore Branch
+
+ล
+
+AUTHORISED SIGNATURE
+
+
+
+--- Page 17 ---
+16-12-25)15:13 )                CP Tdg Singapore )
+
+16/12/25-06:09:53   ,     KRTHSGSGIAP 06-0210-000228           1
+
+=-------==-====-------<  Instance Type and Transmission --~
+Notification (Transmission) of Original sent to SWIFTNer (ACK) —~
+Network Delivery Status : Network Ack
+Priority/Delivery        + Normal
+Message Input Referance : 0609 251.21 6awift_finplus000633000011697
+==---=ซ๑๓๑==๓๓=-----======--- Message Header -=ค๓====๓----------===----
+MX Input     : pacs.009.001.08 CBPRPlus-pacs .009.001.08_FinanedalInstitutioncredit
+Transfer
+Requestor DN : ๐นครมม o=krihsgsg, o=switt     ศ์
+Responder DN : ou=xxx, omirvtus3n, oeswift
+UETR : e58068b0~746£-41db—9Bdd-£03833201904
+Service Name : swift. finplus
+Non-repudiation Indicator: False
+SWIFT Referance: swi04003=-2025-12-16706:09:47,56556,8987212
+SWIFT Request Reference: SNL10233~2025-12-26T06:09:47.2104053.2451612
+CBT Reference: 7da069e6-da2e~41£0-ad7a~b6a005 9aSdat
+Store-and-forward โทรนต Time: 0402:2025-12-16706:09:47
+Signing DN   $ an=$1, ou=Line2,oskrthsgsg, om~switt
+=-@-ซ๕๓๓------===๓๓------- Message Taxt ==--------====--------ฯ
+<AppHdr xmlns="urnidsorstd:iso:20022:tech:xsd:head.001.001.02">
+<Fr>
+<FIId>
+<Fininstnid>
+<BICFI>KRTHSGSG</BICFI>
+</FinInstnId>
+</PLId>
+</Fr>
+<To>
+<FIId>
+<FinInstnid>
+<BICFI>IRVTUS3N</BICFI>
+</FiniInstnId>
+</FIId>
+</To>
+<BizMsyldr>IC 25/0689</BizMsgidr>
+<MsqgdefIdr>paas .009.001.08</MsgDefidr>
+<BLzSve>swift.cbprplus .03</BizSvc>
+<CreDt>2025-12-16T08:36:55+00:00</CraDt>
+</AppHdr>
+<Document xmlns="urniiso:std:is0:20022:tech:xsd:pacs.009.001.08">
+<FICdtix£>
+<GrpHdr>
+<MsgId>Ic 25/0689</MsgId>
+<CreDtTm>2025-12-16T16:49:33400:00</CroDtTm>
+<NbOfTxs>1</NbOfTxs>
+<Sttlmint>
+<SttlmmMtd>INDA</SttlmMtd>
+</Striminf>
+</GrpHdr>
+<CdtTritTxinf>
+<Pmtid>                    ศศ”
+<Instrid>Ic 25/0689</โกลนชนิ๕>
+<ซิภ๕โอโดรไล่>๐0730550253440001</๒ทนโอซีฉ๕โล>
+<TxId>IC 25/0689</TxId>
+<UETR>e58068b0-74 62-4 1db-98da-£03833201904</UETR>
+</PmtId>
+<IntrBkstélmamt Ccy="USD">55554.00</IntraksttlmaAmt>
+<IntrpksStnlmDt>2025-12-16</IntrBksttlmpe>
+<Instgagt>
+<fininstnid>
+<BICFI>KRTHSGSG</BICFI>
+</FinInstnid>
+</InstgAgt>
+<Instdagt>
+
+# 25/ 28
+
+
+--- Page 18 ---
+16-12-25;15:13 ,)              )         CP Tdg Singapore ;             ' # 26/ 28
+
+16/12/25-06:09:53         KRTHSGSGIAP06~0210-000228           2
+
+<FPininstnId>
+<BICFI>IRVIUSIN</BICFI>
+</Fininsrnid>
+</Instdagt>
+<Dbtr>
+<FinInstnid>
+<BICFI>KRTHSGSG</BICFI>
+</FinInstnId>
+</Dbt r>
+«0๕๒หลฮู0น>
+<FiniInstnid>
+<BICFI>BOFAUS3N</BICFI>
+</PinInstnid>
+</CdtxaAgu>
+<Cdtr>
+<FinInstniId>
+<BICFI>RDFCINBB</BICFI>
+</Fininstnid>
+</Cdir>
+<CdtrAact>
+<td>
+<Othr>
+<Id>6550492079</Td>
+</Othr>
+</td>
+</Catracet>
+</CatTréTxIn£>
+</๒19๕6๒ช์>
+</Documant:
+
+==-==---- Interventions --
+: Network Report
+
+Category
+Creation Time : 16/12/25 06:09:47
+Application   : SWIFTINet Interface
+Operator      : SYSTEM
+Text
+<AckNack>
+
+<PseudoAckNack>
+
+(12F2Z2LKRTHSGSGAXXX000633000012697) (4¢1177:2512160609} (45170) (31
+AsACK) )}</PseudoAckNack>
+</AckNack>
+
+
+

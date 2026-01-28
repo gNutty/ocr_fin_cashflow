@@ -1,0 +1,173 @@
+--- Page 1 ---
+208-12-25,)14:12 ,)             CP Tdg Singapore ;         # 2/
+
+Krungthai
+กรงไทย
+
+SINGAPORE BRANCH? ง 65 Chulla Street, #32-05/07, OCBC Centre, 3โทยลทอรอ 048513, TEL: (65) 6533 6691, FAX: (65) 6533-0830
+Go, Req, No. : SS4FC4735E
+
+To:                                                     DEBIT ADVICE
+
+CP Trading Co Ltd                                   Date :             26-Dec-2025
+
+British Virgin Islands
+
+c/o 6001 Beach Road                                              Our Ref:           IC 25/0703
+|#14-01 Golden Mile Tower
+
+Singapore 199589
+
+AICNO: 9943-000613-001                             AMOUNT :         USD 20,278.39
+
+We have today DEBITED your USD account with us, details as follow :-
+
+DOCUMENTS FOR     USD 20,235.74
+
+DRAWER: VIPUL EXIM
+
+Bill Amount    :                         : USD       20,235.74
+0.0625% commission                        : USD         12.65
+Swift                               ; USD        30.00
+
+Total Debited                                                                                         : USD                     20,278.39
+
+Remarks: — As per your instructions, we will courier the documents to
+CP Cambodia Co Ltd, Kandal Province, Cambodia.
+
+Yours Sincerely,
+For KRUNG THAI BANK PUBLIC COMPANY LIMITED
+Singapore Branch
+
+Uri [ง
+
+AUTHORISED SIGNATURE
+
+
+
+--- Page 2 ---
+28-12-25615:09 ,)                       -      CP Tdg Singapore )                    # 4/
+
+26/12/25-06:52:26        KRTHSGSGLAP 0 6—-0239~-000259           1
+
+เพร =-====--------  Instance Type and Tranamissiion --------------
+Notification (Tranemission) of Original sent to SWIFINet (ACK) a“
+Network Delivery Status : Network Ack
+
+Priority/Delivery        : Normal
+Message Input Reference : 0652 251226swift_finplus000633000025438
+_------=-=-=---=-- Message Header coc cw
+MX Input     : paes.009.001,08 CBPRPlus-pacs.009.001,08_FinancialInstitutionCredit
+Transfer                                                                                   -
+
+Requestor DN ะ อนแระ2%,9=แชะบรชรผู,อรรพไซ
+Responder DN : ou=xxx, o=irvtus3n, o=swift    ศ์
+UETR : d0a2f000-87ea-4813-8£25~-£33c5397e705
+Service Name : swift.finplus
+Non-repudiation Indicator: Falsa
+SWIFT Reference: swi04003-2025~12-26T06:52:17.50727.1797626Z
+SWIFT Request Reference: SNL10233-2025-12-26706:52:17,2104061.5078642
+CBT Reference: OaffBef0-e4215-41£0-ad7a—del79fa8a7E80
+Store~and~forward Input Time: 0402:2025-12-26706:52:17
+Signing DN   : On=%1, on=Lite2, o=krthsgsg, omewift
+--------------Somme Message Text ๓๓๓๓=----------------------
+<AppHdr %ณนทธร"หรชม:ะ25อ๐อะ5๒6๕918๐2120022:6๑๕4:%5๕่15688๕.001.0012.02">
+<FPr>
+<FIId>
+<Fininstnid>
+<BICFI>KRTHSGSG</BICFI>
+</finInstnId>
+</FIId>
+</Px>
+<To>
+<FIId>
+<PinInstnId>
+<BICFI>IRVIUS3N¢/BICEI>
+</Fininstnid>
+</FIId>
+</To>
+<Bi.zMagldr>IC 25/0703</sizMsgtdr>
+<Msgbefldr>pacs.009.001.08</MegDefIdr>
+<BLzSve>swift .cbprplus.03</Bizsve>
+<CreDt>2025-12-26708:36:55+00:00</CreDt>
+</AppHdr>
+<Document xmins="yrn:iso:std:iso;20022:tech:xsd:pacs.009.001,08">
+<FICdtTrf>
+<GrpHdr>
+<Msgid>IC 25/0703</Msgid>
+<CreDtTm>2025-12-26T16: 49:33+00:00</CreDtTm>
+<NbOfTxs>L</NbOfTxs>
+<sttlminf>
+<SttlmMtd>INDA</SttimMtd>
+</sttimin£>
+</GrpHdr>
+<CdtTrfTxIni>
+<Pmeid>
+<Instrid>Ic 25/0703</instrId>
+<EndToEndId>C73DE50253530001</EndToEndTd>
+<TxId>I¢ 25/0703</TxId>
+<UETR>d0a2£000-6 7ea~-4813-8£25-£33¢5397e705</UETR>
+</PmtId>                       “
+sIntrBkSctrimAmt Ccoy="U5D">20235.74</IntrcBkSsttlmamt>
+<IntrBkSttlmbt>2025-12-26</IntrcBksttlmnt>
+<InstgAgt>
+<Finingstnid>
+<BICFI>KRTHSGSG¢/BICFI>
+</PinInstnid>
+</Inatgagr>
+<InstdAgt>
+
+ศ์
+
+
+--- Page 3 ---
+26-12-25)15:09 ;            CP Tdg Singapore ;        # 5/ 5
+
+26/12/25-06:52:26         KRTHSGSGIAP06-0239-000259           2
+
+<FinInstnid>
+<BICFI>IRVIUS3IN</BICFI>
+</FinInstniId>
+</InstdAgt>
+<Dbtr>
+<FinInstnid>
+<BICFI>KRTIHSGSG</BICFI>
+</FinInstnId>
+</Dbtr>
+<Cdtragn>         Y
+<FininstnId>
+<BICFI>BOFAUS3N</BICFI>
+</finInstnid>
+, </Cdtragt>
+<Cdtxr>             a
+<FinInstnid>
+<BICFI>HDFCINBB</BICFI>
+</PinInstnid>
+</Cdtr>
+<Cdtracct>
+<Id>
+<Othr>
+<Id>6550492079</Id>
+</Othr>
+</Id>
+</CdtrAcct>
+</CdtTrfTxInf>
+</FICatTrf£>
+</Document>
+๒๓๓====๓----------๒========-- Interventions ===๓-=--------=-========---
+Category      : Network Report
+Creation Time : 26/12/25 06:52:17
+Application   : SWIFTNet Interface
+
+Operator        SYSTEM
+
+Text        .
+
+<AckNack>  “
+<PseudoAckNack>
+
+{1:F2LKRTHSGSGAXXX000633000025438) (4: (177:2512260652) (451:0} (31
+1: ACK) }</PseudoAckNack>
+</AckNack>
+
+
