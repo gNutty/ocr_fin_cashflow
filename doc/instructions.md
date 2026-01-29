@@ -1,4 +1,4 @@
-Tech Stack (Python Only)
++
 Frontend & Logic Control: streamlit
 
 Data Analysis: pandas

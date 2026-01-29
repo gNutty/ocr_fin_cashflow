@@ -181,9 +181,10 @@ class CIMBParser(BankParser):
         
         # A/C No: "Account No." -> "2200027067340"
         ac_patterns = [
-            r"Account\s*No\.?\s*([\d]+)",
-            r"A/C\s*No\.?\s*([\d]+)",
-            r"Current\s*Account\s*\(\s*Account\s*No\.?\s*([\d]+)\s*\)"
+            r"Account\s*No[.,\s]*\s*([\d]+)",
+            r"A/C\s*No[.,\s]*\s*([\d]+)",
+            r"Debit\s*Current\s*Account\s*[\(\[]?\s*Account\s*No[.,\s]*\s*([\d]+)", # Robust catch
+            r"Current\s*Account\s*[\(\[]?\s*Account\s*No[.,\s]*\s*([\d]+)\s*[\)\]]?"
         ]
         for pattern in ac_patterns:
             ac_match = re.search(pattern, text, re.IGNORECASE)
