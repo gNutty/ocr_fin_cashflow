@@ -317,19 +317,51 @@ with tab_process:
 with tab_db:
     st.subheader("🗃️ Historical Data Navigator")
     
-    # Use st.form to prevent rerun on every filter change (Best Practice #5)
-    with st.form("filter_form"):
-        banks, companies, currencies = get_cached_filter_options()
-        
-        col_f1, col_f2, col_f3 = st.columns(3)
-        with col_f1:
-            f_bank = st.selectbox("Filter by Bank", banks, key="f_bank")
-        with col_f2:
-            f_company = st.selectbox("Filter by Company", companies, key="f_company")
-        with col_f3:
-            f_currency = st.selectbox("Filter by Currency", currencies, key="f_currency")
-        
-        apply_btn = st.form_submit_button("🔍 Apply Filters", use_container_width=True)
+    with st.expander("🔍 Search & Filter Options", expanded=False):
+        # Use st.form to prevent rerun on every filter change (Best Practice #5)
+        with st.form("filter_form"):
+            banks, companies, currencies, years, months = get_cached_filter_options()
+            
+            col_f1, col_f2, col_f3 = st.columns(3)
+            with col_f1:
+                f_bank = st.selectbox("Filter by Bank", banks, key="f_bank")
+            with col_f2:
+                f_company = st.selectbox("Filter by Company", companies, key="f_company")
+            with col_f3:
+                f_currency = st.selectbox("Filter by Currency", currencies, key="f_currency")
+                
+            st.markdown("##### 📅 Date Filtering")
+            date_filter_type = st.radio("Filter Type", ["All", "Date Range", "Year & Month"], horizontal=True)
+            
+            row_d1, row_d2 = st.columns(2)
+            
+            f_start_date = None
+            f_end_date = None
+            
+            if date_filter_type == "Date Range":
+                with row_d1:
+                    f_start_date = st.date_input("Start Date", value=None)
+                with row_d2:
+                    f_end_date = st.date_input("End Date", value=None)
+            
+            elif date_filter_type == "Year & Month":
+                with row_d1:
+                    f_year = st.selectbox("Year", years)
+                with row_d2:
+                    f_month = st.selectbox("Month", months)
+                    
+                if f_year != "All":
+                    if f_month != "All":
+                        import calendar
+                        # Get last day of selected month
+                        last_day = calendar.monthrange(int(f_year), int(f_month))[1]
+                        f_start_date = f"{f_year}-{f_month}-01"
+                        f_end_date = f"{f_year}-{f_month}-{last_day}"
+                    else:
+                        f_start_date = f"{f_year}-01-01"
+                        f_end_date = f"{f_year}-12-31"
+            
+            apply_btn = st.form_submit_button("🔍 Apply Filters", use_container_width=True)
     
     # Initialize filter state
     if "applied_bank" not in st.session_state:
@@ -343,18 +375,22 @@ with tab_db:
         st.session_state.applied_bank = f_bank
         st.session_state.applied_company = f_company
         st.session_state.applied_currency = f_currency
+        st.session_state.applied_start_date = f_start_date
+        st.session_state.applied_end_date = f_end_date
         
     hist_df = db.load_records(
         bank=st.session_state.applied_bank, 
         company=st.session_state.applied_company,
-        currency=st.session_state.applied_currency
+        currency=st.session_state.applied_currency,
+        start_date=st.session_state.get("applied_start_date"),
+        end_date=st.session_state.get("applied_end_date")
     )
     
     if not hist_df.empty:
-        m1, m2 = st.columns(2)
-        with m1:
+        col_met1, col_met2, col_met3, col_met4 = st.columns([1.5, 2, 1, 1])
+        with col_met1:
             st.metric("Total Records", f"{len(hist_df):,}")
-        with m2:
+        with col_met2:
             total_val = hist_df["Total Value"].sum()
             st.metric("Total Accumulated Value", f"{total_val:,.2f}")
             

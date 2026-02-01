@@ -2,6 +2,7 @@ import sqlite3
 import pandas as pd
 import datetime
 import os
+import re
 
 DB_NAME = "ocr_data.db"
 
@@ -45,6 +46,62 @@ def init_db():
         pass
     conn.commit()
 
+def normalize_date(date_str):
+    """
+    Normalize various date formats to YYYY-MM-DD.
+    Supports: 
+    - 01-Jan-2024
+    - 05/12/2025
+    - January 01, 2024
+    - 2024-01-01 or 2024/1/1
+    """
+    if not date_str or pd.isna(date_str):
+        return None
+        
+    date_str = str(date_str).strip()
+    
+    # Month mapping
+    months_map = {
+        'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04', 'may': '05', 'jun': '06',
+        'jul': '07', 'aug': '08', 'sep': '09', 'oct': '10', 'nov': '11', 'dec': '12'
+    }
+    
+    try:
+        # Case 1: DD-MMM-YYYY (e.g., 01-Jan-2024)
+        m = re.match(r"(\d{1,2})-([a-zA-Z]{3})-(\d{4})", date_str)
+        if m:
+            day, mon, year = m.groups()
+            mon_num = months_map.get(mon.lower(), '01')
+            return f"{year}-{mon_num}-{int(day):02d}"
+            
+        # Case 2: DD/MM/YYYY (e.g., 05/12/2025)
+        m = re.match(r"(\d{1,2})/(\d{1,2})/(\d{4})", date_str)
+        if m:
+            day, mon, year = m.groups()
+            return f"{year}-{int(mon):02d}-{int(day):02d}"
+            
+        # Case 3: MMM DD, YYYY (e.g., January 01, 2024)
+        m = re.match(r"([a-zA-Z]+)\s+(\d{1,2}),\s+(\d{4})", date_str)
+        if m:
+            mon_name, day, year = m.groups()
+            mon_num = '01'
+            for k, v in months_map.items():
+                if mon_name.lower().startswith(k):
+                    mon_num = v
+                    break
+            return f"{year}-{mon_num}-{int(day):02d}"
+            
+        # Case 4: YYYY-MM-DD or YYYY/MM/DD (Ensure exactly 10 chars, ignore time)
+        m = re.match(r"(\d{4})[-/](\d{1,2})[-/](\d{1,2})", date_str)
+        if m:
+            year, mon, day = m.groups()
+            return f"{year}-{int(mon):02d}-{int(day):02d}"
+            
+    except Exception:
+        pass
+        
+    return date_str # Return as is if normalization fails
+
 def save_records(df):
     """
     Save records from a Pandas DataFrame to the database.
@@ -65,12 +122,15 @@ def save_records(df):
         except ValueError:
             total_val = 0.0
             
+        doc_date = str(row.get("Document Date", ""))
+        normalized_doc_date = normalize_date(doc_date)
+        
         records_to_save.append((
             str(row.get("A/C No", "")),
             str(row.get("Bank Name", "")),
             str(row.get("Company Name", "")),
             str(row.get("Currency", "")),
-            str(row.get("Document Date", "")),
+            normalized_doc_date,
             str(row.get("Reference No", "")),
             total_val,
             str(row.get("Transaction", "")),
@@ -111,8 +171,16 @@ def load_records(bank=None, company=None, currency=None, start_date=None, end_da
         query += " AND currency = ?"
         params.append(currency)
         
-    # Date filtering can be added here if needed, 
-    # but requires standardized date formats in doc_date.
+    if start_date:
+        query += " AND doc_date >= ?"
+        params.append(str(start_date))
+        
+    if end_date:
+        query += " AND doc_date <= ?"
+        params.append(str(end_date))
+
+    # For Year/Month filtering if start_date/end_date are not provided
+    # Re-evaluating params for Year/Month selection
     
     conn = get_connection()
     df = pd.read_sql_query(query, conn, params=params)
@@ -131,19 +199,38 @@ def load_records(bank=None, company=None, currency=None, start_date=None, end_da
         "timestamp": "Saved At"
     }
     df = df.rename(columns=id_map)
+    
+    # Post-load normalization just in case older records exist
+    if "Document Date" in df.columns:
+        df["Document Date"] = df["Document Date"].apply(normalize_date)
+        
     return df
 
 def get_filter_options():
     """Get unique banks, companies, and currencies for filter dropdowns."""
     conn = get_connection()
     try:
-        df = pd.read_sql_query("SELECT DISTINCT bank_name, company_name, currency FROM transactions", conn)
+        df = pd.read_sql_query("SELECT DISTINCT bank_name, company_name, currency, doc_date FROM transactions", conn)
         banks = sorted(df["bank_name"].dropna().unique().tolist())
         companies = sorted(df["company_name"].dropna().unique().tolist())
         currencies = sorted(df["currency"].dropna().unique().tolist())
-        return ["All"] + banks, ["All"] + companies, ["All"] + currencies
+        
+        # Extract years and months from doc_date
+        years = set()
+        months = set()
+        for d in df["doc_date"].dropna():
+            norm_d = normalize_date(d)
+            if norm_d and "-" in norm_d:
+                parts = norm_d.split("-")
+                if len(parts) >= 1: years.add(parts[0])
+                if len(parts) >= 2: months.add(parts[1])
+        
+        sorted_years = sorted(list(years), reverse=True)
+        sorted_months = sorted(list(months))
+        
+        return ["All"] + banks, ["All"] + companies, ["All"] + currencies, ["All"] + sorted_years, ["All"] + sorted_months
     except Exception:
-        return ["All"], ["All"], ["All"]
+        return ["All"], ["All"], ["All"], ["All"], ["All"]
 
 def delete_records(ids):
     """Delete records by ID list."""
