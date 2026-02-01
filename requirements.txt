@@ -5,3 +5,6 @@ pymupdf
 pytesseract
 requests
 openpyxl
+xlrd
+tabulate
+xlsxwriter

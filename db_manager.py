@@ -152,12 +152,16 @@ def save_records(df):
     except Exception as e:
         return 0, f"Error saving to database: {str(e)}"
 
-def load_records(bank=None, company=None, currency=None, start_date=None, end_date=None):
+def load_records(bank=None, company=None, currency=None, start_date=None, end_date=None, ac_no=None):
     """
     Fetch records from the database with optional filters.
     """
     query = "SELECT * FROM transactions WHERE 1=1"
     params = []
+    
+    if ac_no and ac_no != "All":
+        query += " AND ac_no = ?"
+        params.append(ac_no)
     
     if bank and bank != "All":
         query += " AND bank_name = ?"

@@ -89,7 +89,7 @@ if ocr_engine == "Typhoon":
         api_key = st.sidebar.text_input("Typhoon API Key", type="password")
 
 # --- Tabs Implementation ---
-tab_process, tab_db, tab_manual = st.tabs(["🚀 OCR Processing", "📊 Database Dashboard", "➕ Manual Entry"])
+tab_process, tab_db, tab_manual, tab_report = st.tabs(["🚀 OCR Processing", "📊 Database Dashboard", "➕ Manual Entry", "📉 Bank Statement By A/C No. Report"])
 
 # ==========================================
 # TAB 1: OCR Processing
@@ -558,6 +558,114 @@ with tab_manual:
                     st.error(f"Failed to save: {msg}")
     else:
         st.error(f"Could not load account list from {master_path}. Please check the file path in Settings.")
+
+# ==========================================
+# TAB 4: Bank Statement By A/C No. Report
+# ==========================================
+with tab_report:
+    st.subheader("📉 Bank Statement By A/C No. Report")
+    st.info("Generate a detailed bank statement with running balance.")
+    
+    # Reuse functionality from Manual Entry to load Master Data options
+    master_df = get_ac_master_data(master_path)
+    
+    if not master_df.empty:
+        # Create formatting options
+        master_df['Display'] = master_df.apply(lambda x: f"{x['ACNO']} - {x['BankName']} - {x['AccountName']}", axis=1)
+        ac_display_options = ["-- Select Account --"] + master_df['Display'].tolist()
+        ac_mapping = dict(zip(master_df['Display'], master_df['ACNO']))
+        
+        col_r1, col_r2, col_r3 = st.columns([1.5, 1, 1])
+        
+        with col_r1:
+            r_selected_display = st.selectbox("Select Account", ac_display_options, key="report_ac")
+            r_selected_ac = ac_mapping.get(r_selected_display, None)
+            
+        with col_r2:
+             # Date Range for Report
+            r_start_date = st.date_input("From Date", value=pd.Timestamp.now() - pd.Timedelta(days=30), key="rpt_start")
+            
+        with col_r3:
+            r_end_date = st.date_input("To Date", value=pd.Timestamp.now(), key="rpt_end")
+            
+        col_r4, col_r5 = st.columns([1, 2])
+        with col_r4:
+            starting_balance = st.number_input("Starting Balance", value=0.0, format="%.2f")
+            
+        if st.button("📊 Generate Report", type="primary"):
+            if r_selected_ac and r_selected_ac != "-- Select Account --":
+                # Load Data filtered by Account and Date Range
+                report_df = db.load_records(
+                    ac_no=r_selected_ac,
+                    start_date=r_start_date,
+                    end_date=r_end_date
+                )
+                
+                if not report_df.empty:
+                    # Data Transformation Logic
+                    # 1. Sort by Date
+                    report_df = report_df.sort_values(by=["Document Date", "id"], ascending=[True, True])
+                    
+                    # 2. Pivot/Melt Logic: Separate Total Value into Debit/Credit columns
+                    report_df['Debit'] = report_df.apply(lambda x: x['Total Value'] if x['Transaction'] == 'DEBIT' else 0, axis=1)
+                    report_df['Credit'] = report_df.apply(lambda x: x['Total Value'] if x['Transaction'] == 'CREDIT' else 0, axis=1)
+                    
+                    # 3. Calculate Running Balance
+                    # Calculate cumulative sum of (Debit - Credit)
+                    report_df['Net Change'] = report_df['Debit'] - report_df['Credit']
+                    report_df['Balance'] = starting_balance + report_df['Net Change'].cumsum()
+                    
+                    # 4. Final Formatting
+                    # Columns needed: Date, Debit, Credit, Balance, Others (Ref No)
+                    final_df = report_df[['Document Date', 'Debit', 'Credit', 'Balance', 'Reference No']].copy()
+                    final_df = final_df.rename(columns={'Document Date': 'Date', 'Reference No': 'Others'})
+                    
+                    # Format for display
+                    st.divider()
+                    st.markdown(f"**Statement for:** {r_selected_display}")
+                    st.markdown(f"**Period:** {r_start_date.strftime('%d/%m/%Y')} - {r_end_date.strftime('%d/%m/%Y')}")
+                    
+                    st.data_editor(
+                        final_df,
+                        column_config={
+                            "Date": st.column_config.TextColumn("Date"),
+                            "Debit": st.column_config.NumberColumn("Debit", format="%.2f"),
+                            "Credit": st.column_config.NumberColumn("Credit", format="%.2f"),
+                            "Balance": st.column_config.NumberColumn("Balance", format="%.2f"),
+                            "Others": "Others"
+                        },
+                        use_container_width=True,
+                        hide_index=True,
+                        disabled=True
+                    )
+
+                    
+                    # Export Button
+                    report_filename = f"Statement_{r_selected_ac}_{pd.Timestamp.now().strftime('%Y%m%d')}.xlsx"
+                    buffer = BytesIO()
+                    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                         final_df.to_excel(writer, index=False, sheet_name='Statement')
+                         
+                         # Basic Excel Formatting (optional but nice)
+                         workbook = writer.book
+                         worksheet = writer.sheets['Statement']
+                         fmt_currency = workbook.add_format({'num_format': '#,##0.00'})
+                         worksheet.set_column('B:D', 18, fmt_currency) # Debit, Credit, Balance
+                         worksheet.set_column('A:A', 12) # Date
+                         worksheet.set_column('E:E', 25) # Others
+                    
+                    st.download_button(
+                        label="📥 Download Excel Report",
+                        data=buffer.getvalue(),
+                        file_name=report_filename,
+                        mime="application/vnd.ms-excel"
+                    )
+                    
+                else:
+                    st.warning("No transactions found for the selected account and period.")
+            else:
+                st.error("Please select an Account Number first.")
+
 
 # Style (Minimal CSS)
 st.markdown("""
