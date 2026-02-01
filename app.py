@@ -24,6 +24,19 @@ def get_cached_filter_options():
     """Cache filter options for 60 seconds."""
     return db.get_filter_options()
 
+@st.cache_data
+def get_ac_master_data(master_path):
+    """Load and cache AC Master data."""
+    if not os.path.exists(master_path):
+        return pd.DataFrame()
+    try:
+        df = pd.read_excel(master_path)
+        df['ACNO'] = df['ACNO'].astype(str).str.replace("'", "").str.strip()
+        return df
+    except Exception as e:
+        st.error(f"Error loading Master file: {e}")
+        return pd.DataFrame()
+
 # --- Helper Functions ---
 def render_pdf(file_path, page_num=1):
     """Render a specific page of a PDF as an image."""
@@ -76,7 +89,7 @@ if ocr_engine == "Typhoon":
         api_key = st.sidebar.text_input("Typhoon API Key", type="password")
 
 # --- Tabs Implementation ---
-tab_process, tab_db = st.tabs(["🚀 OCR Processing", "📊 Database Dashboard"])
+tab_process, tab_db, tab_manual = st.tabs(["🚀 OCR Processing", "📊 Database Dashboard", "➕ Manual Entry"])
 
 # ==========================================
 # TAB 1: OCR Processing
@@ -437,6 +450,93 @@ with tab_db:
             
     else:
         st.info("No data found in database. Try saving some OCR results first.")
+
+# ==========================================
+# TAB 3: Manual Entry
+# ==========================================
+with tab_manual:
+    st.subheader("➕ Manual Record Entry")
+    st.info("Directly add a transaction record to the database. Fields will auto-populate based on A/C No selection.")
+    
+    # Load Master Data
+    master_df = get_ac_master_data(master_path)
+    
+    if not master_df.empty:
+        # Create formatted options and a mapping back to the raw A/C No
+        master_df['Display'] = master_df.apply(lambda x: f"{x['ACNO']} - {x['BankName']} - {x['AccountName']}", axis=1)
+        ac_display_options = ["-- Select Account --"] + master_df['Display'].tolist()
+        ac_mapping = dict(zip(master_df['Display'], master_df['ACNO']))
+        
+        with st.form("manual_entry_form", clear_on_submit=True):
+            col_m1, col_m2 = st.columns([0.6, 0.4], gap="large")
+            
+            with col_m1:
+                st.markdown("##### 📝 Input Details")
+                selected_display = st.selectbox("A/C No (Search by No, Bank, or Name)", ac_display_options, key="manual_ac")
+                selected_ac = ac_mapping.get(selected_display, "-- Select Account --")
+                
+                # Auto-lookup based on selection
+                bank_val = ""
+                comp_val = ""
+                curr_val = ""
+                
+                if selected_ac != "-- Select Account --":
+                    match = master_df[master_df['ACNO'] == selected_ac]
+                    if not match.empty:
+                        bank_val = match.iloc[0].get('BankName', '')
+                        comp_val = match.iloc[0].get('AccountName', '')
+                        curr_val = match.iloc[0].get('Currency', '')
+                
+                m_transaction = st.selectbox("Transaction Type", ["DEBIT", "CREDIT"])
+                m_date = st.date_input("Document Date", value=pd.Timestamp.now())
+                m_ref = st.text_input("Reference No")
+                m_total = st.number_input("Total Value", min_value=0.0, format="%.2f")
+                m_source = st.text_input("Source File", value="Manual Save")
+
+            with col_m2:
+                st.markdown("##### 🔍 Auto Lookup (Read-only)")
+                st.text_input("Bank Name", value=bank_val, disabled=True)
+                st.text_input("Company Name", value=comp_val, disabled=True)
+                st.text_input("Currency", value=curr_val, disabled=True)
+                
+                # Hidden storage for the values to ensure they are available for saving
+                m_bank = bank_val
+                m_company = comp_val
+                m_currency = curr_val
+            
+            submit_manual = st.form_submit_button("📁 Save Record to Database", use_container_width=True)
+
+            
+            if submit_manual:
+                if selected_ac == "-- Select Account --":
+                    st.error("Please select a valid Account Number.")
+                elif m_total <= 0:
+                    st.warning("Total Value should be greater than 0.")
+                else:
+                    # Prepare data for db_manager.save_records (needs a DataFrame)
+                    manual_data = {
+                        "A/C No": [selected_ac],
+                        "Bank Name": [m_bank],
+                        "Company Name": [m_company],
+                        "Currency": [m_currency],
+                        "Document Date": [m_date.strftime("%Y-%m-%d")],
+                        "Reference No": [m_ref],
+                        "Total Value": [m_total],
+                        "Transaction": [m_transaction],
+                        "Source File": [m_source]
+                    }
+                    save_df = pd.DataFrame(manual_data)
+                    count, msg = db.save_records(save_df)
+                    
+                    if count > 0:
+                        st.success(f"Successfully saved manual record for A/C {selected_ac}")
+                        st.toast("Manual record saved!", icon="✅")
+                        # Clear cache for dashboard
+                        get_cached_filter_options.clear()
+                    else:
+                        st.error(f"Failed to save: {msg}")
+    else:
+        st.error(f"Could not load account list from {master_path}. Please check the file path in Settings.")
 
 # Style (Minimal CSS)
 st.markdown("""
