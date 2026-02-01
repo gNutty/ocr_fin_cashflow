@@ -331,11 +331,11 @@ def lookup_master(ac_no, master_path):
         # Exact match or partial match for account number
         match = df[df['ACNO'].apply(lambda x: clean_ac in x or x in clean_ac)]
         if not match.empty:
-            return match.iloc[0]['BankName'], match.iloc[0]['AccountName']
+            return match.iloc[0]['BankName'], match.iloc[0]['AccountName'], match.iloc[0]['Currency']
     except Exception as e:
         print(f"Lookup error: {e}")
     
-    return None, None
+    return None, None, None
 
 def process_single_pdf(pdf_path, engine="Tesseract", api_key=None, master_path=None):
     if engine == "Typhoon" and api_key:
@@ -347,9 +347,10 @@ def process_single_pdf(pdf_path, engine="Tesseract", api_key=None, master_path=N
     
     for data in entries:
         if master_path:
-            bank, company = lookup_master(data["A/C No"], master_path)
+            bank, company, currency = lookup_master(data["A/C No"], master_path)
             data["Bank Name"] = bank
             data["Company Name"] = company
+            data["Currency"] = currency
             
     return entries, text
 
