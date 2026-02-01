@@ -321,7 +321,7 @@ def extract_all_entries(text):
 
 def lookup_master(ac_no, master_path):
     if not ac_no or not os.path.exists(master_path):
-        return None, None
+        return None, None, None
     
     try:
         df = pd.read_excel(master_path)
