@@ -1,0 +1,1396 @@
+--- Page 1 ---
+CIMB BANK
+
+CIMB BANK SINGAPORE
+TRADE SERVICES
+
+Fax: (65) 63172300
+SWIFT ID: CIBBSGSG
+
+Date: 05/12/2025
+
+To:
+
+๐ห TRADING CO., LTD.
+6001 BEACH ROAD
+#14-01
+
+GOLDEN MILE TOWER
+SINGAPORE 199589
+
+Dear Sir/Madam,
+
+DEBIT ADVICE
+
+ORIGINAL COPY
+
+Strictly Private & Confidential
+
+Please note we have debited your account and/or received payment for settlement of Inward Bill Collection.
+
+Inward Bill Collection No. : 025001625815
+Maturity Date               :
+
+For USD6,089.41
+Rate 1.296850000
+
+Less: Misc/Other Charges
+
+Item(s)
+
+Debit Current Account (Account No. 2200027067340)
+
+Courier                                                USD
+Wire Transfer                                                   USD
+Commission                                          USD
+0.0625000% Fiat
+
+Commission in Lieu                                  USD
+0.0250000% Flat
+
+Bills                                                    USD
+
+Total Debited
+
+Amount
+
+20,00
+32.00
+50.00
+100.00
+
+6,089.41
+
+Ex. Rate
+
+4.000000000
+7.000000000
+1.000000000
+1.000000000
+
+1.000000000
+
+THIS ADVICE IS COMPUTER GENERATED. NO SIGNATURE IS REQUIRED.
+
+CIMB BANK BERHAD (13491-P)
+
+Crcorparated In Malaysis)
+
+30 Raffles Place #04-01 Singapore 048622
+Telephone (65) 6337 5115 Facsimife (65} 6337 5335
+
+www.cimb.com.sg
+
+SGD7,897.05
+
+USD
+0.00
+
+Converted Amount
+USD
+
+20.00
+
+32.00
+
+50,00
+
+100.00
+
+6,089.41
+USD6,291.41
+
+Page 1/1
+
+
+--- Page 2 ---
+Message Instance Details
+
+Reprint From MFA-0000-000000
+
+Possible Duplicate Delivery
+Network:
+Session Holder:
+Session:
+Sequence:
+Delivery Status:
+
+Instance Type and Transmission
+
+Original
+Priority/Delivery :
+
+Message Header
+
+MX Input:
+Requestor DN:
+Sender:
+Responder DN:
+
+MUR:
+
+Service Name:
+Non-repudiation Indicator :
+CBT Reference:
+
+UETR:
+
+Message Text
+
+SWIFTNet
+cibbsgsg_finplus
+000234
+000000294
+Network Ack
+
+Normal
+
+pacs.009.001.08 CBPRPlus-pacs.009.001.08_FinancialinstitutionCreditTransfer
+oU=xxx,0=cibbsgsg,o=swift
+
+OU=XXX, O=irvtus3n,o=swift
+
+025001625815
+
+swift.finplus
+
+False
+
+3f26620-d1 8d-41 f0-95f7-aa45275bc487
+2a8cf059-03ca-4c88-86e4-537e705b4a00
+
+FinancialInstitutionIdentification/FinancialInstitutionIdentification
+
+BICFI:              CIBBSGSGXXX
+
+FinancialInstitutionIdentification/FinancialInstitutionIdentification
+
+BICFI:              IRVTUS3NXXX
+BusinessMessageIdentifiex:
+MessageDefinitionidentifier:
+BusinessService:
+CreationDate:
+
+025001625815
+
+pacs .009.001.08
+
+swift.cbprplus.@3
+2025~-12-05T03:42:50+08:20
+
+FinancialinstitutionCreditTransferVo8
+
+GroupHeader
+MessageIdentification:
+CreationDateTime:
+NumberOfTransactions:
+Settlementinformation
+
+SettlementMethod:
+
+25001625815
+
+2025 -12-05T@3 :42:50+08:20
+1
+
+INDA
+
+CreditTransferTransactionInformation
+
+PaymentIdentification
+
+InstructionIdentification:
+
+EndToEndidentification:
+
+TransactionIdentification:
+
+UETR:
+InterbankSettlementAmount:
+
+ActiveCurrencyCade:
+InterbankSettlementDate:
+
+625001625815
+UDC@0579258
+025001625815
+
+2a8cT059-03ca-4c88-86e4-537e705b4a00
+
+6089.41
+USD
+2025-12-05
+
+#6 ,089.41#
+US DOLLAR
+
+InstructingAgent/FinancialInstitutionIdentification
+
+BICFI:
+
+CIBBSGSGXXX
+
+InstructedAgent/FinancialInstitutionIdentification
+
+Page 1 of 2
+
+
+
+--- Page 3 ---
+BICFI:          IRVTUS3NXXX
+Debtor/FinancialInstitutionIdentification
+
+BICFI:          CIBBSGSGXXX
+CreditorAgent
+
+FinancialInstitutionIdentification
+
+BICFI:          PNBPUS3NNYC
+
+Creditor/FinancialInstitutionIdentification
+
+BICFI:          PNBPUS33CHA
+InstructionForNextAgent
+
+InstructionFoxNextAgent/InstxructionInformation:          /DEDUCT/
+RemittanceInformation
+
+Unstxuctured:          INV NO :. 250275-CP-MY-B
+
+STRICTLY PRIVATE AND CONFIDENTIAL
+
+End of Message
+
+Page 2 of 2
+
+
+
+--- Page 4 ---
+bal CIMB BANK
+
+CIMB BANK SINGAPORE
+TRADE SERVICES
+
+Fax: (65) 63172300
+SWIFT ID: CIBBSGSG
+
+Date: 05/12/2025
+
+To:
+
+C.P. TRADING 00., LTD.
+6001 BEACH ROAD
+#14-01
+
+GOLDEN MILE TOWER
+SINGAPORE 199589
+
+Dear Sir/Madam,
+
+DEBIT ADVICE
+
+ORIGINAL COPY
+
+Strictly Private & Confidential
+
+Please note we have debited your account and/or received payment for settlement of Inward Bill Collection.
+
+Inward Bill Collection No. : 025001625796
+Maturity Date               :
+
+For USD93,326.26
+Rate 1.296850000
+
+Less: Misc/Other Charges
+
+Item(s)
+
+Amount
+
+Debit Current Account (Account No. 2200027067340)
+
+Courier                                                USD
+Wire Transfer                                                   USD
+Commission                                          USD
+0.0625000% Flat
+
+Commission in Lieu                               USD
+0.0250000% Fiat
+
+Bills                                             .       บรม
+
+Total Debited
+
+20.00
+32.00
+58.33
+400,00
+
+93,326.26
+
+Ex, Rate
+
+1.000000000
+1.000000000
+1.000000000
+1,000000000
+
+1.000000000
+
+THIS ADVICE IS COMPUTER GENERATED. NO SIGNATURE IS REQUIRED.
+
+CIMB BANK BERHAD (13491-P)
+Gncorporated In Malaysia}
+30 Raffles Place 404-01 Singapore 942622
+
+Telephone (65) 6237 5115 Facsimile (65} 6337 5335
+
+weew.cimb.com.sg
+
+$GD121,030,16
+
+USD
+0.00
+
+Converted Amount
+USD
+
+20.00
+
+32.00
+
+58.33
+
+100.00
+
+93,326.26
+USD93,536.59
+
+Page 1/1
+
+
+--- Page 5 ---
+Report Content
+
+Message Instance Details
+
+Reprint From MFA-0000-000000 _
+
+Possible Duplicate Delivery
+
+Network:                                                                          SWIFTNet
+Session Holder:                                                      cibbsgsg_finplus
+Session:                                                                            000234
+Sequence;                                 000000531
+Delivery Status:                                                       Network Ack
+
+Instance Type and Transmission
+
+Original
+Priority/Delivery :                                                    Normal
+
+Message Header
+
+MX Input:                                                       pacs.009.001.08 CBPRPlus-pacs.009.001.08_FinancialInstitutionCreditTransfer
+Requestor DN:                                                 Ou=xxx,o=cibbsqsg,o=swift
+Sender:
+Responder DN;                                                       OU=xxx,0=irvtus3n,o=swift
+MUR:                                                                      025001625796
+Service Name:                                                        swift.finplus
+Non-repudiation Indicator :                                   False
+CBT Reference:                                                        1b1c1ac6-d18d-41f0-95f7-6e1 {40682173
+UETR:                                                                     710963e1-3112-4180-809a-f26ece53619¢
+Message Text nw
+FinancialInstitutionIdentification/FinancialInstitutionIdentification
+BICFI:           CIBBSGSGXXX
+FinancialInstitutionIdentification/FinancialInstitutionIdentification
+BICFI:                    IRVTUS3NXXX
+BusinessMessageIdentifier:                    25001625796
+MessageDefinitionIdentifier:                    Pacs .009, 001.08
+BusinessService:           swift. cbprplus .03
+CreationDate:           2025-12-05T05:05:36+08: 00
+FinancialInstitutionCreditTransfexVe38
+GroupHeader
+MessageIdentification:                    25001625796
+CreationDateTime:           2025-12-O5TO5: 05: 36408: 00
+NumberOfTransactions:                    1
+SettlementInformation
+SettlementMethod:                       INDA
+
+CreditTransfexTransactionInformation
+PaymentIdentification
+
+InstructionIdentification:          @25001625796
+
+EndToEndIidentification:          UDC@0@579219
+
+TransactionIdentification:          625001625796
+
+UETR:          710963e1-3112-4180-809a-f26ece53619¢
+InterbankSettlementAmount:          93326. 26          #93 ,326.26#
+
+ActiveCurrencyCode:          บรม          US DOLLAR
+InterbankSettlementDate:          2025-12-05
+InstzructingAgent/FinancialInstitutionIdentification
+
+BICFI:          CIBBSGSGXXX
+
+InstructedAgent/FinancialInstitutionIdentification
+
+Page 1 of 2
+
+
+
+--- Page 6 ---
+BICFI:          IRVTUS3NXXX
+Debtor/FinancialInstitutionIdentification
+
+BICFI:          CIBBSGSGXXX
+CreditorAgent
+FinancialInstitutionIdentification
+BICFI:          PNBPUS3NNYC
+Creditor/FinancialInstitutionIdentification
+BICFI:          PNBPUS33CHA
+
+InstructionFoxrNextAgent
+
+InstructionForNextAgent/InstructionInformation:
+
+RemittanceInfoxmation
+Unstructured:          INV NO. 250276-CP-MY-A
+
+End of Message
+
+Page 2 of 2
+
+STRICTLY PRIVATE AND CONFIDENTIAL
+
+/DEDUCT/
+
+
+--- Page 7 ---
+ee CIMB BANK
+
+CIMB BANK SINGAPORE
+TRADE SERVICES
+
+Fax: (65) 63172300
+SWIFT ID: CIBBSGSG
+
+Date: 05/12/2025
+
+To:
+
+๐ห TRADING CO., LTD.
+6001 BEACH ROAD
+#14-01
+
+GOLDEN MILE TOWER
+SINGAPORE 199589
+
+Dear Sir/Madam,
+
+DEBIT ADVICE
+
+ORIGINAL COPY
+
+Strictly Private & Confidential
+
+Please note we have debited your account and/or received payment for settlement of Inward Bill Collection.
+
+Inward Bill Collection No.: 025001626248
+Maturity Date               :
+
+For USD178,420.93
+Rate 1.297050000
+
+SGD231,420.87
+
+USD
+Less; Misc/Other Charges                                                                                                   0.00
+Item(s)                                                                    Amount           Ex. Rate      Converted Amount
+Debit Current Account (Account No. 2200027067340)                                                                    USD
+Courier                                                     USD                  28.00       4.000000000                        28.00
+Wire Transfer                                         USD                32.00      4.000000000                      32.00
+Commission                                               USD                 4111.51       4.000000000                       441.51
+0.0625000% Flat
+Commission in Lieu                                  USD               100.00      1.000000000                     100.00
+0.0250000% Flat
+Bills                                                  .        USD           178,420.93       1.000000000                 178,420.93
+Total Debited                                                                                                   USD178,692.44
+THIS ADVICE IS COMPUTER GENERATED. NO SIGNATURE IS REQUIRED.
+
+CIMB BANK BERHAD (13491-P)                                                                                                        Page 1/1
+
+ภูตะอทรณรเลย In Malaysia}
+30 Raffles Place #04-01 Singapore นิ48622
+Telephone (65) 6337 5115 Facsimile (65) 6337 5335
+
+yew,cimb,com.sg
+
+
+--- Page 8 ---
+Report Content
+
+‘Message Instance Details
+
+Reprint From MFA-0000-000000 ง|.
+
+Possible Duplicate Delivery
+
+Network:                                                                SWIFTNet
+Session Holder:                                          cibbsgsg_finplus
+Session:                                                                            000234
+Sequence:                                 000000532
+Delivery Status:                                                      Network Ack
+
+Instance Type and Transmission
+
+Original
+Priority/Delivery :                                                    Normal
+
+Message Header
+
+MX Input:                                                                    pacs.009,001.08 CBPRPlus-pacs.009.001.08_FinanciallnstitutionCreditTransfer
+Requestor DN:                                                        ou=xxx,0=cibbsgsg,o=swift
+Sender:
+Responder DN:                                                OUFEXxx,O=irvtus3n,o=swift
+พบพ                                                                     025001626248
+Service Name:                                                 swift.finplus
+Non-repudiation Indicator :                                   False
+CBT Reference :                                              6acOSb66-d1 90-41f0-95f7-c22ac89f9b60
+บต                                                                     54dSdef2-6b90-4194-901 1-c308df6F1c51
+Message Text -
+FinancialinstitutionIdentification/FinanciallnstitutionIdentification
+BICFI:           CIBBSGSGXXX
+FinancialInstitutionIdentification/FinancialInstitutionIdentification
+BICFI:                    TRVTUS3NXXX
+BusinessMessageIdentifier:           025001626248
+MessageDefinitionIdentifier:                       pacs .009.@01.08
+BusinessService:           swift. cbprplus .03
+CreationDate:           2025-12-05T03:57:21+08: 00
+FinancialinstitutionCreditTransfexVos
+GxoupHeader
+MessageIdentification:                    25001626248
+CreationDateTime:           2025-12-05T03 :57:21+08:00
+NumbexOfTransactions:                    1
+SettlementInformation
+SettlementMethod:                    INDA
+
+CreditTransferTransactionInformation
+PaymentIdentification
+
+InstructionIdentification:          025001626248
+
+EndToEndIdentification:          DSC829621P
+
+TransactionIdentification:          025001626248
+
+UETR:          54d5def2-6b90-4194-9011-c308df6f1c51
+InterbankSettlementAmount:          178420 .93          #178 ,420.93#
+
+ActiveCurrencyCode:          USD          US DOLLAR
+InterbankSettlementDate:          2025-12-05
+InstxructingAgent/FinancialInstitutionIdentification
+
+BICFI:              CIBBSGSGXXX
+
+InstructedAgent/FinancialInstitutionIdentification
+
+Page 1 of 2
+
+
+--- Page 9 ---
+BICFI:          IRVTUS3NXXX
+Debtor/FinancialInstitutionIdentification
+
+BICFI:          CIBBSGSGXXX
+CreditorAgent
+
+Financial InstitutionIdentification
+
+BICFI:          SCBLUS33XXX
+
+Creditor/FinancialInstitutionIdentification
+
+BICFI:          USBKUS441TF
+InstructionForNextAgent
+
+InstructionForNextAgent/InstructionInfoxmation:          /DEDUCT/
+RemittanceInfoxmation
+
+Unstructured:          INV NO : 205076
+
+STRICTLY PRIVATE AND CONFIDENTIAL
+
+End of Message
+
+Page 2 of 2
+
+
+
+--- Page 10 ---
+ORIGINAL COPY
+
+Strictly Private & Confidential
+
+CIMB BANK
+
+CIMB BANK SINGAPORE
+TRADE SERVICES
+
+Fax: (65) 63172300
+SWIFT ID: CIBBSGSG
+
+Date: 05/12/2025
+
+To:
+
+C.P. TRADING CO., LTD.
+6001 BEACH ROAD
+#14-01
+
+GOLDEN MILE TOWER
+SINGAPORE 199589
+
+Dear Sir/Madam,
+DEBIT ADVICE
+Please note we have debited your account and/or received payment for settlement of Inward Bill Collection,
+
+Inward Bill Collection No. :    025001626274
+
+Maturity Date
+
+For USD22,099.17                                              .
+
+Rate 1.297050000                                                                                               SGD28,663.73
+USD
+
+Less: Misc/Other Charges                                                                                                   0.00
+
+Item(s)                                                                Amount           Ex. Rate      Converted Amount
+
+Debit Current Account (Account No. 2200027067340)                                                                    USD
+
+Courier                                                     USD                  28.00       1.000000000                        28.00
+
+Wire Transfer                                         USD                32.00      4.000000000                      32.00
+
+Commission                                               USD                  50.00       1.000000000                        60.00
+
+0.0625000% Flat
+
+Commission in Lieu                                  USD               100.00      4.000000000                     100.00
+
+0.0250000% Flat
+
+Bills                                                    USD           22,099.17      1.000000000                 22,099.17
+
+Total Debited                                                                                           USD22,309.17
+
+THIS ADVICE IS COMPUTER GENERATED. NO SIGNATURE IS REQUIRED.
+
+CIMB BANK BERHAD (13491-P)                                                                                                                                                     Page 1/1
+
+Gncorparated In Mat
+30 Raffles Place 4 404.01 Singapore 048622
+Telephone (65) 6337 5115 Facsimile (65) 6337 5335
+
+wew,cimb.com.sg.
+
+
+
+--- Page 11 ---
+Report Content
+
+Message Instance Details
+
+Reprint From MFA-0000-000000
+
+Possible Duplicate Delivery
+Network:
+Session Holder:
+Session:
+Sequence:
+Delivery Status:
+
+Instance Type and Transmission
+
+Original
+Priority/Delivery :
+
+Message Header
+
+MX Input:
+Requestor DN:
+Sender:
+Responder DN:
+
+MUR:
+
+Service Name:
+Non-repudiation Indicator :
+CBT Reference :
+
+UETR:
+
+Message Text : .
+
+SWIFTNet
+cibbsgsg_finplus
+000234
+000000534
+Network Ack
+
+Normal
+
+pacs.009,001.08 CBPRPlus-pacs.009.001.08_FinancialInstitutionCreditTransfer
+OU=xxx,0=cibbsgsg,o=swift
+
+OU=xxx, o=irvtus3n,o=swift
+
+025001626274
+
+swift.finplus
+
+False
+e0f121e8-d191-41f0-95f7-ee024b3b80d1
+ab7d0ea6-e99f-432e-8913-3b2bad4bc09c
+
+FinancialInstitutionIdentification/FinancialInstitutionIdentification
+
+BICFI:              CIBBSGSGXXX
+
+FinancialInstitutionIdentification/FinancialInstitutionIdentification
+
+BICFI:              ITRVTUS3NXXX
+BusinessMessageIdentifier:
+MessageDefinitionIdentifier:
+
+025001626274
+pacs .009.001.08
+
+BusinessService:          swift .cbprplus ,@3
+CreationDate:          2025-12-@5T@5:05 : 36+08: 00
+FinancialInstitutionCreditTransfexves
+GroupHeader
+Messageidentification:          25001626274
+CreationDateTime:          2025-12-05TO5:05:36+08:00
+NumberOfTransactions:          1
+SettlementInformation
+SettlementMethod:          INDA
+CreditTransferTransactionInformation
+PaymentIdentification
+InstructionIdentification:          025001626274
+EndToEndIdentification:          DSC829620P
+TransactionIdentification:          025001626274
+
+UETR:
+IntexbankSettlementAmount:
+
+ActiveCurrencyCode:
+InterbankSettlementDate:
+
+ab7d@ea6-e99f -432e-8913-3b2bad4bc09c
+
+22099 .17             #22 ,099,17#
+USD              US DOLLAR
+2025-12-95
+
+InstructingAgent/FinancialInstitutionIdentification
+
+BICFI:
+
+CIBBSGSGXXX
+
+InstructedAgent/FinancialInstitutionIdentification
+
+Page 1 of 2
+
+
+
+--- Page 12 ---
+BICFI:                    IRVTUS3NXXX
+Debtor/FinancialInstitutionIdentification                                         STRICTLY PRIVATE AND CONFIDENTIAL
+
+BICFI:                    CIBBSGSGXXX
+CreditorAgent
+
+FinancialinstitutionIdentification
+
+BICFI:             SCBLUS33XXX
+
+Creditor/FinancialInstitutionIdentification
+
+BICFI:                    USBKUS441TF
+InstxructionFoxrNextAgent
+
+InstructionForNextAgent/instructionInformation:                    /DEDUCT/
+Remittanceinformation
+
+Unstructured:             INV NO. 205070
+
+End of Message
+
+Page 2 of 2
+
+
+
+--- Page 13 ---
+he CIMB BANK
+
+CIMB BANK SINGAPORE
+TRADE SERVICES
+
+Fax: (65) 63172300
+SWIFT ID: CIBBSGSG
+
+Date: 05/12/2025
+
+To:
+
+C.P. TRADING CO., LTD.
+6001 BEACH ROAD
+#14-01
+
+GOLDEN MILE TOWER
+SINGAPORE 199589
+
+Dear Sir/Madam,
+
+DEBIT ADVICE
+
+ORIGINAL COPY
+
+Strictly Private & Confidential
+
+Please note we have debited your account and/or received payment for settlement of Inward Bill Collection.
+
+Inward Bill Collection No.: 025001626238
+Maturity Date                :
+
+For USD49,195.14
+Rate 1.295950000
+
+Less: Misc/Other Charges
+
+SGD63,754.44
+
+USD
+0.00
+
+Item(s)                                                                    Amount           Ex. Rate      Converted Amount
+Debit Current Account (Account No. 2200027067340)                                                                          USD
+Courier                                                     USD                  28.00       1.000000000                        28.00
+Wire Transfer                                                   USD                    32.00        1.000000000                           32.00
+Commission                                                            USD                      ‘50.00         1.000000000                               §0.00
+0.0625000% Flat
+
+Commission in Lieu                               USD              100.00      1.000000000                   100.00
+0.0250000% Flat
+
+Bills                             .     USD       49,195.14    1.000000000           49,195.14
+Total Debited                                                                                                     USD49,405.14
+THIS ADVICE iS COMPUTER GENERATED. NO SIGNATURE เธ REQUIRED.
+
+CIMB BANK BERHAD (13491-9)                                                                                                                                                     Page 1/1
+
+Gncarporated In Molaysi
+30 Raffies Place 404-01 Singapore 048622
+Telephone (65) 6337 5115 Facsimile (65) 6337 5335
+
+www,cimb,com.sg
+
+
+--- Page 14 ---
+Report Content
+
+Message Instance Details
+
+Reprint From MFA-0000-000000
+
+Possible Duplicate Delivery
+
+Network:                                                                SWIFTNet
+Session Holder:                                           cibbsgsg_finplus
+Session:                                                                  000234
+Sequence:                                                              000000544
+Delivery Status:                                                       Network Ack
+
+Instance Type and Transmission
+
+Original
+Priority/Delivery :                                                    Normal
+
+Messa geH eader
+
+MX Input:                                                                   pacs.009.001,08 CBPRPlus-pacs.009.001.08_FinancialInstitutionCreditTransfer
+Requestor DN:                                                        OU=xxx, o=cibbsgsg,o=swift
+
+Sender:
+
+Responder DN:                                                 OU=xxx,0=irvtus3n,o=swift
+
+MUR:                                                                      025001626236
+
+Service Name:                                            swift.finplus
+
+Non-repudiation Indicator ;                                   False
+
+CBT Reference:                                                   be927254-d192-41 f0-95f7-348e083a6237
+
+UETR:                                                                                        ffc30ad4-b41 1-4bfb-bf67-9509e2980fb7
+
+Message Text
+
+FinancialInstitutionIdentification/FinancialInstitutionIdentification
+
+BICFI:          CIBBSGSGXXX
+FinancialInstitutionIdentification/FinancialInstitutionIdentification
+BICFI:          IRVTUS3NXXX
+BusinessMessageIdentifier:          925001626236
+MessageDefinitionIdentifier:          pacs .009.001.08
+BusinessService:          swift.cbpxplus .03
+CreationDate:            2025-12-@5T05 :@5 : 36+88 : 00
+FinancialinstitutionCreditTransferva8
+GroupHeader
+MessageIdentification:          25001626236
+CreationDateTime:          2025-12-O5TOS : 05 :36+08: 00
+NumberOfTxansactions:          1
+SettlementInformation           .
+SettlementMethod:          INDA
+
+CreditTxansferTransactionInformation
+PaymentIdentification
+
+InstructionIdentification:                    025001626236
+EndToEndidentification:                    DSC829543P
+TransactionIdentification:                    025001626236
+
+UETR:            ffc3@ad4-b411-4bfb-bf67-9509e2980fb7
+
+InterbankSettlementAmount:                    49195.14                   #49,195.14#
+ActiveCurrencyCode:              USD              US DOLLAR
+
+InterbankSettlementDate:                    2025-12-05
+
+InstructingAgent/FinancialInstitutionIdentification
+
+BICFI:              CIBBSGSGXXX
+InstructedAgent/FinancialInstitutionidentification
+
+Page 1 of 2
+
+
+
+--- Page 15 ---
+BICFI:            IRVTUS3NXXX
+Debtoxr/FinancialInstitutionIdentification
+
+BICFI:          CIBBSGSGXXX
+CreditorAgent
+
+FinancialInstitutionIdentification
+
+BICFI:          SCBLUS33XXX
+
+Creditor/FinancialInstitutionIdentification
+
+BICFI: —       USBKUS441TF
+InstructionForNextAgent
+
+InstxuctionForNextAgent/InstructionInformation:          /DEDUCT/
+RemittanceInformation
+
+Unstructured:          INV NO. 205056
+
+STRICTLY PRIVATE AND CONFIDENTIAL
+
+‘End of Message
+
+Page 2 of 2
+
+
+
+--- Page 16 ---
+ta CIMB BANK
+
+CIMB BANK SINGAPORE
+TRADE SERVICES
+
+Fax: (65) 63172300
+SWIFT ID: CIBBSGSG
+
+Date: 05/12/2025
+
+To:
+
+C.P. TRADING CO., LTD.
+6001 BEACH ROAD
+#14-01
+
+GOLDEN MILE TOWER
+SINGAPORE 199589
+
+Dear Sir/Madam,
+
+DEBIT ADVICE
+
+ORIGINAL COPY .
+
+Strictly Private & Confidential
+
+Please note we have debited your account and/or received payment for settlement of Inward Bill Collection.
+
+Inward Bill Collection No.: 025001626286
+Maturity Date               :
+
+For USD408,230.05
+Rate 1.297050000
+
+Less: Misc/Other Charges
+
+SGD529,494.79
+
+USD
+0.00
+
+Item(s)                                                                       Amount            Ex. Rate       Converted Amount
+Debit Current Account (Account No. 2200027067340)                                                                        USD
+Courier                                                                    USD                       20.00         1.000000000                               20.00
+Wire Transfer                                             USD                  32.00       1.000000000                        32.00
+Commission                                               USD                255.14       1.000000000                       255.14
+0.0625000% Flat
+
+Commission in Lieu                      USD          102.06    1.000000000              102.06
+0.0250000% Flat
+
+Bills                                                 .        USD           408,230.05       1.000000000                 408,230.05
+Total Debited                                                                                                   USD408,639.25
+THIS ADVICE 15 COMPUTER GENERATED. NO SIGNATURE IS REQUIRED.
+
+CIMB BANK BERHAD (13491-P}                                                                                                                                                     Page 1/4
+
+Cacarporated In Malay:
+30 Raffles Place #04-01 Singapore 048622
+Telephone (65) 6337 5115 Facsimile (85) 6337 5335
+
+www.cimb,com.sg
+
+
+
+--- Page 17 ---
+Report Content
+
+Message Instance Details
+
+Reprint From MFA-0000-000000
+
+Possible Duplicate Delivery
+Network:
+Session Holder:
+Session:
+Sequence:
+Delivery Status:
+
+Instance Type and Transmission
+
+Original
+Priority/Delivery :
+
+Message Header
+
+MX Input:
+Requestor DN:
+Sender;
+Responder DN:
+
+MUR:
+
+Service Name:
+Non-repudiation Indicator :
+CBT Reference :
+
+UETR:
+
+Message Text
+
+SWIFTNet
+cibbsgsg_finplus
+000234
+000000548
+Network Ack
+
+Normal
+
+pacs.009.001.08 CBPRPlus-pacs.009,001,08_FinancialInstitutionCreditTransfer
+OU=Xxx,0=cibbsgsg,o=swift
+
+OU=Xxx, OF [rvtus3n,o=swift
+
+025001626286
+
+swift.finplus
+
+False
+bbcb2074-d193-41f0-95f7-1994ba34fa12
+c16bc60e-a1 d9-432d-89b8-3e51e9c91b81
+
+FinancialInstitutionIdentification/FinancialInstitutionIdentification
+
+BICFI:              CIBBSGSGXXX
+
+FinancialInstitutionIdentification/FinancialInstitutionIdentification
+
+BICFI:              IRVTUS3NXXX
+BusinessMessageldentifier:
+MessageDefinitionIdentifier:
+
+025001626286
+pacs ,009.001.08
+
+BusinessService:          swift.cbpzplus .03
+CreationDate:          2025-12-@5T04: 20: 08+08 : 00
+FinancialinstitutionCreditTxransferVos
+GroupHeader
+MessageIdentification:          025001626286
+CreationDateTime:          2025-12-O5T04: 20: 08+08 : 00
+NumberOfTransactions:          1
+SettlementInformation
+SettlementMethod:          INDA
+
+CreditTransfexTransactionInformation
+
+PaymentIdentification
+
+Instructionidentification:              025001626286
+
+EndToEndIidentification:              DSC829622P
+
+TransactionIdentification:              925001626286
+
+UETR:            ci6bc60e-ald9-432d-89b8-3e51e9c91b81
+InterbankSettlementAmount:                    408230.05                   #408 ,230.05#
+
+ActiveCurrencyCode:              USD             US DOLLAR
+InterbankSettlementDate:           2025-12-05
+
+InstructingAgent/FinancialInstitutionIdentification
+
+BICFI:                    CIBBSGSGXXX
+
+InstructedAgent/FinancialInstitutionIdentification
+
+Page 1 of 2
+
+
+
+--- Page 18 ---
+BICFI:                IRVTUS3NXXX
+Debtox/FinancialinstitutionIdentification
+
+BICFI:                CIBBSGSGXXX
+CreditoxAgent
+
+FinancialInstitutionIdentification
+
+BICFI:               SCBLUS33XXX
+
+Creditor/FinancialInstitutionIdentification
+
+BICFI:               USBKUS441TF
+InstructionForNextAgent
+
+InstructionForNextAgent/InstructionInformation:                    /DEDUCT/
+RemittanceInfoxrmation
+
+Unstructured:                INV NO : 205009
+
+STRICTLY PRIVATE AND CONFIDENTIAL
+
+‘End of Message ; 7
+
+Page 2 of 2
+
+
+
+--- Page 19 ---
+ial CIMB BANK
+
+CIMB BANK SINGAPORE
+TRADE SERVICES
+
+Fax: (65) 63172300
+SWIFT ID: CIBBSGSG
+
+Date: 05/12/2025
+
+To:
+
+C.P, TRADING CO., LTD.
+6001 BEACH ROAD
+#14-01
+
+GOLDEN MILE TOWER
+SINGAPORE 199589
+
+Dear Sir/Madam,
+
+DEBIT ADVICE
+
+ORIGINAL COPY .
+
+Strictly Private & Confidential
+
+Please note we have debited your account and/or received payment for settlement of Inward Bill Collection.
+
+Inward Bill Collection No.: 025001626317
+Maturity Date               :
+
+For USD369,430.41
+Rate 1.297050000
+
+Less: Misc/Other Charges
+
+SGD479, 169.71
+
+USD
+0.00
+
+Item(s)                                                                       Amount            Ex. Rate       Converted Amount
+Debit Current Account (Account No. 2200027067340)                                                                  USD
+Courier                                                     USD                  20,00       1.000000000                        20.00
+Wire Transfer                                                   USD                    32.00        1.000000000                           32.00
+Commission                                               USD                230.89       1.000000000                       230.89
+0.0625000% Fiat
+
+Commission in Lieu                      USD          100.00    1.000000000              100.00
+0.0250000% Flat
+
+Bills                                                          USD           369,430.41       1.000000000                 369,430.41
+Total Debited                                                                                                                                             USD369,813.30
+
+“THIS ADVICE เธ COMPUTER GENERATED. NO SIGNATURE IS REQUIRED.
+
+CIMB BANK BERHAD (13491-P)
+Cncosporated In ใหร้ไชหมือ)
+
+30 Raffles Place #04-01 Singapore 048622
+Telephone (65) 6337 5115 Facsimile (65) 6337 5335
+
+waww.cimb.com.sg
+
+Page 1/1
+
+
+--- Page 20 ---
+Report Content
+Message Instance Details
+
+Reprint From MFA-0000-000000
+
+Possible Duplicate Delivery
+
+Network:                                                                           SWIFTNet
+Session Holder:                                          cibbsgsg_finplus
+Session:                                                                            000234
+Sequence:                                                                         000000542
+Delivery Status:                                                       Network Ack
+
+Instance Type and Transmission
+
+Original
+Priority/Delivery :                                                    Normal
+
+Message Header
+
+MX Input:                                                               pacs,009.001.08 CBPRPlus-pacs.009.001.08_FinancialInstitutionCreditTransfer
+Requestor DN:                                                        Ou=xxx,0=cibbsgsg,o=swift
+
+Sender:
+
+Responder DN:                                                OU=Xxx, O=irvtus3n,o=swift
+
+MUR:                                        025001626317
+
+Service Name:                                                  swift.finplus
+
+Non-repudiation Indicator :                                   False
+
+CBT Reference :                                                      5d303238-d1 94-41 f0-95f7-3f0c309da481
+
+UETR:                                                                     40125cd1-ce64-471 1-8a25-e66d7065a6ea
+
+Message Text
+
+FinancialInstitutionIdentification/FinancialInstitutionIdentification
+
+BICFI:          CIBBSGSGXXX
+FinancialInstitutionIdentification/FinancialInstitutionIdentification
+BICFI:          TRVTUS3NXXX
+BusinessMessageIdentifier:          025001626317
+MessageDefinitionIdentifier:          pacs .009.001.08
+BusinessService:          swift.cbprplus.23
+CreationDate:          2025-12-05T05: 05: 36+08 : 00
+FinancialInstitutionCreditTransferVa8
+GroupHeader
+MessageIdentification:          @25001626317
+CreationDateTime:          2025-12-@5TO5 : 05 : 36+08 : 00
+NumberOfTransactions:          1
+SettlementInfoxmation
+SettlementMethod:          INDA
+
+CreditTransferTransactionInformation
+PaymentIdentification
+
+InstructionIdentification:              025001626317
+
+EndToEndIdentification:              DSC829624P
+
+TransactionIdentification:                    @25001626317
+
+UETR:            40125cd1-ce64-4711-8a25-e66d7065a6ea
+InterbankSettlementAmount:              369430.41             #369,430.41#
+
+ActiveCurrencyCode:              USD              US DOLLAR
+InterbankSettlementDate:                    2025-12-05
+InstructingAgent/FinancialInstitutionIdentification
+
+BICFI:              CIBBSGSGXXX
+
+InstructedAgent/FinancialinstitutionIdentification
+
+Page 1 of 2
+
+— ว00         - ็             -      - 8@20ไเไเโีี       -    ---1
+
+
+--- Page 21 ---
+BICFI:          IRVTUS3NXXX
+Debtor/FinancialInstitutionIdentification
+
+BICFI:          CIBBSGSGXXX
+CreditorAgent
+
+FinancialInstitutionIdentification
+
+BICFI:          SCBLUS33XXX
+
+Creditor/FinancialInstitutionIdentification
+
+BICFI:          USBKUS441TF
+InstructionForNextAgent
+
+InstructionForNextAgent/InstxructionInformation:          /DEDUCT/
+RemittanceInformation
+
+Unstructured:          INV NO. 205059
+
+STRICTLY PRIVATE AND CONFIDENTIAL
+
+End of Message ;
+
+Page 2 of 2
+
+
+

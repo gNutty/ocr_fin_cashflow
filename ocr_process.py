@@ -93,14 +93,14 @@ class KrungthaiParser(BankParser):
         
         # A/C No
         ac_patterns = [
-            r"(?:A[/|I]?C['\s]*NO|Account\s*No|AVCNO|AIC\s?No)[;:\.\s]*\s*([\d-]{7,})", 
+            r"(?:A[/|I]?C['\s]*NO|Account\s*No|AVCNO|AIC\s?No)[;:\.\s\=]*\s*([\d\-\=]{7,})", 
             r"Id>([\d-]{7,})</Id", 
-            r"(?:A[/|I]?C['\s]*NO|Account\s*No|AVCNO|AIC\s?No)[;:\.\s]*\s*([\d-]+)"
+            r"(?:A[/|I]?C['\s]*NO|Account\s*No|AVCNO|AIC\s?No)[;:\.\s\=]*\s*([\d\-\=]+)"
         ]
         for pattern in ac_patterns:
             ac_match = re.search(pattern, text, re.IGNORECASE)
             if ac_match:
-                val = ac_match.group(1).strip()
+                val = ac_match.group(1).strip().replace("=", "-")
                 if len(val) >= 5:
                     fields["A/C No"] = val
                     break
@@ -125,45 +125,45 @@ class KrungthaiParser(BankParser):
                 ref_val = re_code.group(1) if re_code else None
             fields["Reference No"] = ref_val
         
-        # Total Value
-        val_keywords = [
-            "Amount Credited", "Total Debited", "Total Credited", 
-            "Total Amount", "Total Value", "Debit Amount", "Credit Amount", "Amount"
-        ]
-        for kw in val_keywords:
-            # Flexible regex for Total Value to handle thousands separators (comma, space)
-            # Requiring 3-letter currency code for smarter extraction
-            val_match = re.search(rf"{kw}\s*[:;]?\s*([A-Z]{{3}})\s*((?:\d{{1,3}}[\s,]*)+\.\d{{2}})", text, re.IGNORECASE)
-            if val_match:
-                fields["Total Value"] = re.sub(r"[\s,]", "", val_match.group(2))
-                if "Amount Credited" in kw: break
-            
-            kw_match = re.search(rf"{kw}\s*[:;]?", text, re.IGNORECASE)
-            if kw_match:
-                lookahead_text = text[kw_match.end():]
-                # Flexible regex for Total Value to handle thousands separators (comma, space)
-                # Requiring 3-letter currency code for smarter extraction
-                all_vals = re.findall(r"([A-Z]{{3}})\s*((?:\d{{1,3}}[\s,]*)+\.\d{{2}})(?!\d)", lookahead_text)
-                if all_vals:
-                    if "Amount Credited" in kw:
-                        fields["Total Value"] = re.sub(r"[\s,]", "", all_vals[-1][1])
-                    else:
-                        fields["Total Value"] = re.sub(r"[\s,]", "", all_vals[0][1])
-                    break
-        
-        if not fields["Total Value"]:
-            val_match = re.search(r"[:;]\s*([A-Z]{3})\s*((?:\d{1,3}[\s,]*)+\.\d{2})(?!\d)", text)
-            if val_match: fields["Total Value"] = re.sub(r"[\s,]", "", val_match.group(2))
-        
-        if not fields["Total Value"]:
-            all_vals = re.findall(r"([A-Z]{3})\s*((?:\d{1,3}[\s,]*)+\.\d{2})(?!\d)", text)
-            if all_vals: fields["Total Value"] = re.sub(r"[\s,]", "", all_vals[-1][1])
-        
         # Transaction Type
-        if re.search(r"DEBIT ADVICE", text, re.IGNORECASE):
+        if re.search(r"DEBIT\s*ADVICE", text, re.IGNORECASE):
             fields["Transaction"] = "DEBIT"
-        elif re.search(r"CREDIT ADVICE", text, re.IGNORECASE):
+        elif re.search(r"CREDIT\s*ADVICE", text, re.IGNORECASE):
             fields["Transaction"] = "CREDIT"
+        
+        # Only extract Total Value if we have a transaction type
+        if fields["Transaction"]:
+            # Skip extraction if this looks like a Shipment Receipt (which often has false positive totals)
+            is_shipment_receipt = re.search(r"Shipment\s*Receipt", text, re.IGNORECASE)
+            is_advice = re.search(r"ADVICE", text, re.IGNORECASE)
+            
+            if not (is_shipment_receipt and not is_advice):
+                val_patterns = [
+                    (r"A[nm]ount\s*Credited", False), 
+                    (r"Total\s*Debited", False), 
+                    (r"Total\s*Credited", False), 
+                    (r"Total\s*Amount", False), 
+                    (r"Total\s*Value", False), 
+                    (r"Debit\s*Amount", False), 
+                    (r"Credit\s*Amount", False), 
+                    (r"Amount", True) # Keep pick_last for "Amount" as it's a weak keyword
+                ]
+                
+                for kw_pattern, pick_last in val_patterns:
+                    kw_match = re.search(kw_pattern, text, re.IGNORECASE)
+                    if kw_match:
+                        lookahead_text = text[kw_match.end():]
+                        all_vals = re.findall(r"(?:[A-Z]{3}|[ก-ฮ]{3}|[฿\$])?[\s\.]*((?:\d{1,3}[\s,]*)+\.\d{2})(?!\d)", lookahead_text)
+                        if all_vals:
+                            val_idx = -1 if pick_last else 0
+                            fields["Total Value"] = re.sub(r"[\s,]", "", all_vals[val_idx])
+                            break
+            
+                # Absolute Last Resort
+                if not fields["Total Value"]:
+                    all_vals = re.findall(r"(?:[A-Z]{3}|[ก-ฮ]{3}|[฿\$])?[\s\.]*((?:\d{1,3}[\s,]*)+\.\d{2})(?!\d)", text)
+                    if all_vals: 
+                        fields["Total Value"] = re.sub(r"[\s,]", "", all_vals[-1])
             
         return fields
 
@@ -211,17 +211,23 @@ class CIMBParser(BankParser):
                 fields["Reference No"] = ref_match.group(1).strip()
                 break
              
-        # Total Value: Last number on the page/chunk preceded by currency (USD/THB/etc)
-        # Handle cases like USD6,291.41 or SGD 1,234.56
-        all_vals = re.findall(r"([A-Z]{3})\s*((?:\d{1,3}[\s,]*)+\.\d{2})(?!\d)", text)
-        if all_vals:
-             fields["Total Value"] = re.sub(r"[\s,]", "", all_vals[-1][1])
-             
         # Transaction Type
         if re.search(r"DEBIT\s*ADVICE", text, re.IGNORECASE):
             fields["Transaction"] = "DEBIT"
         elif re.search(r"CREDIT\s*ADVICE", text, re.IGNORECASE):
             fields["Transaction"] = "CREDIT"
+             
+        # Total Value: Only extract if transaction detected
+        if fields["Transaction"]:
+            # Prioritize numbers preceded by currency (USD/THB/etc)
+            cur_vals = re.findall(r"(?:[A-Z]{3}|[ก-ฮ]{3}|[฿\$])[\s\.]*((?:\d{1,3}[\s,]*)+\.\d{2})(?!\d)", text)
+            if cur_vals:
+                fields["Total Value"] = re.sub(r"[\s,]", "", cur_vals[-1])
+            else:
+                # Fallback: Last number with 2 decimals
+                all_vals = re.findall(r"(?:\d{1,3}[\s,]*)+\.\d{2}(?!\d)", text)
+                if all_vals:
+                     fields["Total Value"] = re.sub(r"[\s,]", "", all_vals[-1])
             
         print("Using CIMB Parser")
         return fields
@@ -260,7 +266,9 @@ def extract_all_entries(text):
     # For now, keep the split logic generic or make it robust enough for both
     # Krungthai: DEBIT ADVICE, CREDIT ADVICE
     # CIMB: To be determined. Assuming potentially similar or we process the whole text if splits don't apply.
-    chunks = re.split(r"(?=(?:DEBIT ADVICE|CREDIT ADVICE|RECEIPT NO\.))", text, flags=re.IGNORECASE)
+    # Split text into chunks based on header markers
+    # Added "Shipment Receipt" and page markers to ensure clean separation of advice sections
+    chunks = re.split(r"(?=(?:DEBIT ADVICE|CREDIT ADVICE|RECEIPT NO\.|Shipment Receipt|--- Page \d+ ---))", text, flags=re.IGNORECASE)
     
     results = []
     header_state = {
@@ -283,28 +291,25 @@ def extract_all_entries(text):
             else:
                 break
         
+        # Filter: Skip chunks that don't look like Advice (unless they contain header info we need)
+        is_actual_advice = re.search(r"DEBIT\s*ADVICE|CREDIT\s*ADVICE", chunk, re.IGNORECASE)
+        
         # Strategy Extract
         data = parser.extract_chunk(chunk)
         data["Page"] = page
         
-        # Merge with previous header state if current chunk is missing fields
-        # BUT only if we found some "meat" in this chunk (like Total Value or Transaction)
-        # Or if it's the very first chunk and we just want to harvest header info
-        
+        # Merge with previous header state
         for key in ["Document Date", "Reference No", "A/C No"]:
             if data[key]:
                 header_state[key] = data[key]
             else:
                 data[key] = header_state[key]
             
-        if any(v for k, v in data.items() if k not in ["Page", "Bank Name", "Document Date", "Reference No", "A/C No"]): # Check if actual advice data found
+        # Only append IF it's actual advice OR it has transaction data (as fallback)
+        if is_actual_advice or data["Transaction"]:
             results.append(data)
-        elif not results and any(v for k, v in data.items() if k not in ["Page", "Bank Name"]):
-            # If nothing added yet, but we found some info, maybe it's a standalone header chunk
-            # We don't append yet, just wait for the next chunk with Transaction/Value
-            pass
         elif results and not any(v for k, v in data.items() if k not in ["Page", "Bank Name", "Document Date", "Reference No", "A/C No"]):
-            # Probably just an extra bit of info, maybe update the last result if it's missing something?
+            # Update last result with potential header info from this chunk
             last_res = results[-1]
             for k in ["Document Date", "Reference No", "A/C No"]:
                 if not last_res[k] and data[k]:

@@ -16,9 +16,22 @@ def append_to_excel(df, target_path):
             try:
                 existing_df = pd.read_excel(target_path)
                 combined_df = pd.concat([existing_df, df], ignore_index=True)
-                combined_df.to_excel(writer, index=False)
+                combined_df.to_excel(writer, index=False, sheet_name='Sheet1')
             except Exception:
-                df.to_excel(writer, index=False)
+                df.to_excel(writer, index=False, sheet_name='Sheet1')
+        
+        # Apply formatting using openpyxl directly
+        wb = load_workbook(target_path)
+        ws = wb.active
+        # Find 'Total Value' column index
+        header = [cell.value for cell in ws[1]]
+        if "Total Value" in header:
+            col_idx = header.index("Total Value") + 1
+            # Apply format to all rows in this column (except header)
+            for row in range(2, ws.max_row + 1):
+                ws.cell(row=row, column=col_idx).number_format = '#,##0.00'
+        wb.save(target_path)
+        
         return f"Appended data to: {target_path}"
     except Exception as e:
         return f"Error appending to Excel: {e}"

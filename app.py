@@ -247,6 +247,13 @@ if "current_results" in st.session_state and st.session_state.current_results:
                  if col == "Select": display_df[col] = False
                  else: display_df[col] = None
         
+        # Format Total Value with commas and 2 decimal places
+        if "Total Value" in display_df.columns:
+            display_df["Total Value"] = pd.to_numeric(display_df["Total Value"].replace('', pd.NA), errors='coerce')
+            display_df["Total Value"] = display_df["Total Value"].apply(
+                lambda x: f"{x:,.2f}" if pd.notna(x) else ""
+            )
+        
         # Helper to make link
         display_df["Page"] = display_df["Page"].fillna(1).astype(int)
         display_df["PDF Link"] = display_df.apply(make_pdf_link, axis=1).astype(str)
@@ -266,14 +273,19 @@ if "current_results" in st.session_state and st.session_state.current_results:
             ),
             "Page": st.column_config.NumberColumn(disabled=True),
             "Source File": st.column_config.TextColumn(disabled=True),
+            "Total Value": st.column_config.TextColumn(
+                "Total Value",
+                help="Amount with 2 decimal places"
+            ),
         }
         
         # Display Data Editor
         edited_df = st.data_editor(
             display_df,
             column_config=column_config,
-            num_rows="dynamic",
+            num_rows="fixed",
             use_container_width=True,
+            height=850,
             key="data_editor",
             hide_index=True,
             on_change=on_editor_change
@@ -348,6 +360,16 @@ st.markdown("""
     /* Specifically for OCR Engine (Selectbox) - keep text white on dark background */
     .stSelectbox>div>div>div {
         color: #ffffff !important;
+    }
+    /* Prevent data_editor from scrolling to top on change */
+    [data-testid="stDataFrameResizable"], 
+    [data-testid="stDataFrame"],
+    .dvn-scroller {
+        overflow-anchor: none !important;
+    }
+    /* Keep scroll position stable */
+    .main .block-container {
+        overflow-anchor: none !important;
     }
 </style>
 """, unsafe_allow_html=True)

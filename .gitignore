@@ -1,7 +1,13 @@
 __pycache__/
-*.pyc
+*.py[cod]
+*$*
+output/
+source/Backup/
+doc/~$*
+*.csv
+*.xlsx
+!AC_Master.xlsx
+repro_*.py
+test_fix.py
 .streamlit/
-output/CashFlow_Report*.xlsx
-output/test_results/
-output/test_typhoon/
 config.json
