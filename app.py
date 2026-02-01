@@ -766,13 +766,18 @@ with tab_report:
                     st.markdown(f"**Statement for:** {r_selected_display}")
                     st.markdown(f"**Period:** {r_start_date.strftime('%d/%m/%Y')} - {r_end_date.strftime('%d/%m/%Y')}")
                     
+                    # Create display copy for formatting
+                    display_df = final_df.copy()
+                    for col in ["Debit", "Credit", "Balance"]:
+                         display_df[col] = display_df[col].apply(lambda x: f"{x:,.2f}" if pd.notna(x) else "0.00")
+                    
                     st.data_editor(
-                        final_df,
+                        display_df,
                         column_config={
                             "Date": st.column_config.TextColumn("Date"),
-                            "Debit": st.column_config.NumberColumn("Debit", format="%.2f"),
-                            "Credit": st.column_config.NumberColumn("Credit", format="%.2f"),
-                            "Balance": st.column_config.NumberColumn("Balance", format="%.2f"),
+                            "Debit": st.column_config.TextColumn("Debit"),
+                            "Credit": st.column_config.TextColumn("Credit"),
+                            "Balance": st.column_config.TextColumn("Balance"),
                             "Others": "Others"
                         },
                         use_container_width=True,
