@@ -157,6 +157,12 @@ with tab_process:
                     
                     st.session_state.current_results = all_results
                     st.session_state.raw_text = all_raw_text
+                    # Initialize edit mode state if fresh run
+                    if "edit_mode" in st.session_state:
+                        del st.session_state.edit_mode
+                    if "edit_index" in st.session_state:
+                         del st.session_state.edit_index
+                         
                     status_text.text("OCR Completed!")
                     st.success(f"Processed {len(files_to_process)} file(s).")
 
@@ -191,136 +197,271 @@ with tab_process:
 
         display_df["Page"] = display_df["Page"].fillna(1).astype(int)
         
+        # Initialize Edit Mode State
+        if "edit_mode" not in st.session_state:
+            st.session_state.edit_mode = False
+        if "edit_index" not in st.session_state:
+            st.session_state.edit_index = -1
+
         col1_res, col2_res = st.columns([0.65, 0.35], gap="medium")
 
+        # Define these variables early so they are available for PDF Preview
+        target_source = None
+        target_page = 1
+
         with col1_res:
-            st.subheader("Edit Data")
+            col_head, col_edit_btn, col_del_btn = st.columns([0.6, 0.2, 0.2])
+            with col_head:
+                st.subheader("Edit Data")
             
-            if "Select" not in display_df.columns:
-                 display_df.insert(0, "Select", False)
-                 for res in st.session_state.current_results:
-                     if "Select" not in res:
-                         res["Select"] = False
-            
-            def on_editor_change():
-                if "data_editor" not in st.session_state:
-                    return
+            # --- VIEW MODE: TABLE ---
+            if not st.session_state.edit_mode:
+                if "Select" not in display_df.columns:
+                     display_df.insert(0, "Select", False)
+                     for res in st.session_state.current_results:
+                         if "Select" not in res:
+                             res["Select"] = False
                 
-                edited_rows = st.session_state["data_editor"]["edited_rows"]
-                new_selection_idx = None
+                # Check for selected row for Edit/Delete Button availability
+                selected_indices = [i for i, r in enumerate(st.session_state.current_results) if r.get("Select", False)]
+                is_selected_one = len(selected_indices) == 1
+                is_selected_any = len(selected_indices) > 0
                 
-                for idx, changes in edited_rows.items():
-                    if "Select" in changes and changes["Select"] is True:
-                         new_selection_idx = int(idx)
-                         break
+                with col_edit_btn:
+                    if st.button("✏️ Edit Record", disabled=not is_selected_one, use_container_width=True):
+                        st.session_state.edit_mode = True
+                        st.session_state.edit_index = selected_indices[0]
+                        st.rerun()
+
+                with col_del_btn:
+                    if st.button("🗑️ Delete Record", disabled=not is_selected_any, type="primary", use_container_width=True):
+                         # Logic to delete selected
+                         # Filter out indices in reverse order to avoid shifting issues
+                         indices_to_delete = sorted(selected_indices, reverse=True)
+                         for idx in indices_to_delete:
+                             st.session_state.current_results.pop(idx)
+                         
+                         st.toast(f"Deleted {len(indices_to_delete)} record(s)!", icon="🗑️")
+                         st.rerun()
+
+                def on_editor_change():
+                    if "data_editor" not in st.session_state:
+                        return
+                    
+                    edited_rows = st.session_state["data_editor"]["edited_rows"]
+                    new_selection_idx = None
+                    
+                    for idx, changes in edited_rows.items():
+                        if "Select" in changes and changes["Select"] is True:
+                             new_selection_idx = int(idx)
+                             break
+                    
+                    if new_selection_idx is not None:
+                        for i, res in enumerate(st.session_state.current_results):
+                            res["Select"] = (i == new_selection_idx)
+                    
+                    for idx, changes in edited_rows.items():
+                         idx = int(idx)
+                         for k, v in changes.items():
+                             if k != "Select":
+                                 st.session_state.current_results[idx][k] = v
                 
-                if new_selection_idx is not None:
-                    for i, res in enumerate(st.session_state.current_results):
-                        res["Select"] = (i == new_selection_idx)
+                # Re-build display_df from current_results
+                display_df = pd.DataFrame(st.session_state.current_results)
+                display_df = display_df.reset_index(drop=True)
+                for col in ["A/C No", "Bank Name", "Company Name", "Currency", "Document Date", "Reference No", "Total Value", "Transaction", "Source File", "Page", "Select"]:
+                    if col not in display_df.columns:
+                         if col == "Select": display_df[col] = False
+                         else: display_df[col] = None
                 
-                for idx, changes in edited_rows.items():
-                     idx = int(idx)
-                     for k, v in changes.items():
-                         if k != "Select":
-                             st.session_state.current_results[idx][k] = v
-            # Re-build display_df from current_results
-            display_df = pd.DataFrame(st.session_state.current_results)
-            display_df = display_df.reset_index(drop=True)
-            for col in ["A/C No", "Bank Name", "Company Name", "Currency", "Document Date", "Reference No", "Total Value", "Transaction", "Source File", "Page", "Select"]:
-                if col not in display_df.columns:
-                     if col == "Select": display_df[col] = False
-                     else: display_df[col] = None
-            
-            if "Total Value" in display_df.columns:
-                display_df["Total Value"] = pd.to_numeric(display_df["Total Value"].replace('', pd.NA), errors='coerce')
-                display_df["Total Value"] = display_df["Total Value"].apply(
-                    lambda x: f"{x:,.2f}" if pd.notna(x) else ""
+                if "Total Value" in display_df.columns:
+                    display_df["Total Value"] = pd.to_numeric(display_df["Total Value"].replace('', pd.NA), errors='coerce')
+                    display_df["Total Value"] = display_df["Total Value"].apply(
+                        lambda x: f"{x:,.2f}" if pd.notna(x) else ""
+                    )
+                
+                display_df["Page"] = display_df["Page"].fillna(1).astype(int)
+                display_df["PDF Link"] = display_df.apply(make_pdf_link, axis=1).astype(str)
+                
+                cols_order = ["Select", "A/C No", "Bank Name", "Company Name", "Currency", "Document Date", "Reference No", "Total Value", "Transaction", "Source File", "Page", "PDF Link"]
+                display_df = display_df[[c for c in cols_order if c in display_df.columns]]
+    
+                column_config = {
+                    "Select": st.column_config.CheckboxColumn("View", help="Check to view PDF", width="small"),
+                    "PDF Link": st.column_config.LinkColumn("PDF Link", help="Open in new tab", validate="^file://.*", display_text="Open"),
+                    "Page": st.column_config.NumberColumn(disabled=True),
+                    "Source File": st.column_config.TextColumn(disabled=True),
+                    "Total Value": st.column_config.TextColumn("Total Value", help="Amount with 2 decimal places"),
+                }
+                
+                edited_df = st.data_editor(
+                    display_df,
+                    column_config=column_config,
+                    num_rows="fixed",
+                    use_container_width=True,
+                    height=600,
+                    key="data_editor",
+                    hide_index=True,
+                    on_change=on_editor_change
                 )
+    
+                selected_rows = edited_df[edited_df["Select"] == True]
+                
+                if not selected_rows.empty:
+                    current_row = selected_rows.iloc[-1]
+                    target_source = current_row["Source File"]
+                    target_page_raw = current_row["Page"]
+                    try:
+                        target_page = int(target_page_raw) if pd.notna(target_page_raw) else 1
+                    except:
+                        target_page = 1
+                        
+                # Master Lookup Logic for Inline Edits
+                for index, row in edited_df.iterrows():
+                    ac_no = str(row.get("A/C No", "")).strip()
+                    bank_name = str(row.get("Bank Name", "")).strip()
+                    comp_name = str(row.get("Company Name", "")).strip()
+                    currency = str(row.get("Currency", "")).strip()
+                    
+                    if ac_no and (not bank_name or not comp_name or not currency):
+                         match_bank, match_comp, match_curr = lookup_master(ac_no, master_path)
+                         if match_bank:
+                             if not bank_name: edited_df.at[index, "Bank Name"] = match_bank
+                             if not comp_name: edited_df.at[index, "Company Name"] = match_comp
+                             if not currency: edited_df.at[index, "Currency"] = match_curr
             
-            display_df["Page"] = display_df["Page"].fillna(1).astype(int)
-            display_df["PDF Link"] = display_df.apply(make_pdf_link, axis=1).astype(str)
-            
-            cols_order = ["Select", "A/C No", "Bank Name", "Company Name", "Currency", "Document Date", "Reference No", "Total Value", "Transaction", "Source File", "Page", "PDF Link"]
-            display_df = display_df[[c for c in cols_order if c in display_df.columns]]
-
-            column_config = {
-                "Select": st.column_config.CheckboxColumn("View", help="Check to view PDF", width="small"),
-                "PDF Link": st.column_config.LinkColumn("PDF Link", help="Open in new tab", validate="^file://.*", display_text="Open"),
-                "Page": st.column_config.NumberColumn(disabled=True),
-                "Source File": st.column_config.TextColumn(disabled=True),
-                "Total Value": st.column_config.TextColumn("Total Value", help="Amount with 2 decimal places"),
-            }
-            
-            edited_df = st.data_editor(
-                display_df,
-                column_config=column_config,
-                num_rows="fixed",
-                use_container_width=True,
-                height=600,
-                key="data_editor",
-                hide_index=True,
-                on_change=on_editor_change
-            )
-
-            target_source = None
-            target_page = 1
-            selected_rows = edited_df[edited_df["Select"] == True]
-            
-            if not selected_rows.empty:
-                current_row = selected_rows.iloc[-1]
-                target_source = current_row["Source File"]
-                target_page_raw = current_row["Page"]
+            # --- EDIT MODE: FORM ---
+            else:
+                idx = st.session_state.edit_index
+                if idx < 0 or idx >= len(st.session_state.current_results):
+                     # Error state, fallback
+                     st.session_state.edit_mode = False
+                     st.rerun()
+                
+                record = st.session_state.current_results[idx]
+                
+                # Set target source for PDF preview based on editing record
+                target_source = record.get("Source File")
                 try:
-                    target_page = int(target_page_raw) if pd.notna(target_page_raw) else 1
+                    target_page = int(record.get("Page", 1))
                 except:
                     target_page = 1
 
+                # Navigation Controls (Above Form)
+                nav_col1, nav_col2, nav_col3 = st.columns([0.2, 0.6, 0.2])
+                
+                with nav_col1:
+                    if st.button("⬅️ Previous", disabled=(idx <= 0), use_container_width=True):
+                        st.session_state.edit_index -= 1
+                        st.rerun()
+                
+                with nav_col2:
+                    st.markdown(f"<p style='text-align: center; padding-top: 10px;'><b>Record {idx+1} of {len(st.session_state.current_results)}</b></p>", unsafe_allow_html=True)
+                    
+                with nav_col3:
+                    if st.button("Next ➡️", disabled=(idx >= len(st.session_state.current_results) - 1), use_container_width=True):
+                        st.session_state.edit_index += 1
+                        st.rerun()
+
+                with st.form("edit_record_form"):
+                    
+                    # Form Layout
+                    e_col1, e_col2 = st.columns(2)
+                    
+                    with e_col1:
+                        e_ac_no = st.text_input("A/C No", value=record.get("A/C No", ""))
+                        e_bank = st.text_input("Bank Name", value=record.get("Bank Name", ""))
+                        e_comp = st.text_input("Company Name", value=record.get("Company Name", ""))
+                        e_curr = st.text_input("Currency", value=record.get("Currency", ""))
+                    
+                    with e_col2:
+                         # Handle Date parsing safely
+                        doc_date_val = record.get("Document Date", pd.Timestamp.now())
+                        if pd.isna(doc_date_val) or doc_date_val == "":
+                             doc_date_val = pd.Timestamp.now()
+                        else:
+                             try:
+                                 doc_date_val = pd.to_datetime(doc_date_val)
+                             except:
+                                 doc_date_val = pd.Timestamp.now()
+
+                        e_date = st.date_input("Document Date", value=doc_date_val)
+                        e_ref = st.text_input("Reference No", value=record.get("Reference No", ""))
+                        
+                        # Handle float parsing
+                        try:
+                             val_float = float(record.get("Total Value", 0.0))
+                        except:
+                             val_float = 0.0
+                        e_total = st.number_input("Total Value", value=val_float, format="%.2f")
+                        
+                        e_trans = st.selectbox("Transaction", ["DEBIT", "CREDIT"], index=0 if record.get("Transaction") == "DEBIT" else 1)
+                        
+                    st.divider()
+                    
+                    b_col1, b_col2 = st.columns([1, 1])
+                    with b_col1:
+                        if st.form_submit_button("💾 Save Changes", type="primary", use_container_width=True):
+                            # Update session state
+                            st.session_state.current_results[idx]["A/C No"] = e_ac_no
+                            st.session_state.current_results[idx]["Bank Name"] = e_bank
+                            st.session_state.current_results[idx]["Company Name"] = e_comp
+                            st.session_state.current_results[idx]["Currency"] = e_curr
+                            st.session_state.current_results[idx]["Document Date"] = e_date.strftime("%Y-%m-%d")
+                            st.session_state.current_results[idx]["Reference No"] = e_ref
+                            st.session_state.current_results[idx]["Total Value"] = e_total
+                            st.session_state.current_results[idx]["Transaction"] = e_trans
+                            
+                            # STAY IN EDIT MODE - Refresh to show updated data
+                            st.toast(f"Record #{idx+1} updated!", icon="✅")
+                            st.rerun()
+                            
+                    with b_col2:
+                        if st.form_submit_button("🔙 Back to List", use_container_width=True):
+                            st.session_state.edit_mode = False
+                            st.rerun()
+                            
+        # Column 2: PDF Preview (Shared Logic)
         with col2_res:
             st.subheader("PDF Preview")
             if target_source:
                  target_pdf_path = os.path.join(source_path, str(target_source))
-                 render_pdf(target_pdf_path, target_page)
+                 # Debug info if file missing
+                 if not os.path.exists(target_pdf_path):
+                     st.warning(f"File not found: {target_pdf_path}")
+                 else:
+                     render_pdf(target_pdf_path, target_page)
             else:
-                st.info("Select a row in the 'View' column to preview the PDF.")
-        # Master Lookup Logic
-        for index, row in edited_df.iterrows():
-            ac_no = str(row.get("A/C No", "")).strip()
-            bank_name = str(row.get("Bank Name", "")).strip()
-            comp_name = str(row.get("Company Name", "")).strip()
-            currency = str(row.get("Currency", "")).strip()
-            
-            if ac_no and (not bank_name or not comp_name or not currency):
-                 match_bank, match_comp, match_curr = lookup_master(ac_no, master_path)
-                 if match_bank:
-                     if not bank_name: edited_df.at[index, "Bank Name"] = match_bank
-                     if not comp_name: edited_df.at[index, "Company Name"] = match_comp
-                     if not currency: edited_df.at[index, "Currency"] = match_curr
+                st.info("Select a row or edit a record to preview.")
 
-        st.divider()
-        col_btn1, col_btn2 = st.columns(2)
-        
-        with col_btn1:
-            if st.button("💾 Export & Append to Excel"):
-                with st.spinner("Exporting to Excel..."):
-                    cols_to_drop = [c for c in ["Select", "PDF Link"] if c in edited_df.columns]
-                    export_df = edited_df.drop(columns=cols_to_drop)
-                    msg = append_to_excel(export_df, export_path)
-                st.toast("Export complete!", icon="✅")
-                st.info(msg)
-        
-        with col_btn2:
-            if st.button("🗄️ Save to Database"):
-                with st.spinner("Saving to database..."):
-                    cols_to_drop = [c for c in ["Select", "PDF Link"] if c in edited_df.columns]
-                    save_df = edited_df.drop(columns=cols_to_drop)
-                    count, msg = db.save_records(save_df)
-                if count > 0:
-                    st.toast(f"Saved {count} records!", icon="✅")
-                    st.success(msg)
-                    # Clear cache so Dashboard gets fresh data
-                    get_cached_filter_options.clear()
-                else:
-                    st.error(msg)
+        if not st.session_state.edit_mode:
+            st.divider()
+            col_btn1, col_btn2 = st.columns(2)
+            
+            with col_btn1:
+                if st.button("💾 Export & Append to Excel"):
+                    with st.spinner("Exporting to Excel..."):
+                        # Ensure we use latest data
+                        current_df = pd.DataFrame(st.session_state.current_results)
+                        cols_to_drop = [c for c in ["Select", "PDF Link"] if c in current_df.columns]
+                        export_df = current_df.drop(columns=cols_to_drop, errors='ignore')
+                        msg = append_to_excel(export_df, export_path)
+                    st.toast("Export complete!", icon="✅")
+                    st.info(msg)
+            
+            with col_btn2:
+                if st.button("🗄️ Save to Database"):
+                    with st.spinner("Saving to database..."):
+                        current_df = pd.DataFrame(st.session_state.current_results)
+                        cols_to_drop = [c for c in ["Select", "PDF Link"] if c in current_df.columns]
+                        save_df = current_df.drop(columns=cols_to_drop, errors='ignore')
+                        count, msg = db.save_records(save_df)
+                    if count > 0:
+                        st.toast(f"Saved {count} records!", icon="✅")
+                        st.success(msg)
+                        get_cached_filter_options.clear()
+                    else:
+                        st.error(msg)
     else:
         st.info("Run OCR to see data here.")
 
