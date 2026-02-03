@@ -25,13 +25,17 @@ def get_cached_filter_options():
     return db.get_filter_options()
 
 @st.cache_data
-def get_ac_master_data(master_path):
-    """Load and cache AC Master data."""
+def get_ac_master_data(master_path, mtime):
+    """Load and cache AC Master data. mtime is used for cache invalidation."""
     if not os.path.exists(master_path):
         return pd.DataFrame()
     try:
         df = pd.read_excel(master_path)
-        df['ACNO'] = df['ACNO'].astype(str).str.replace("'", "").str.strip()
+        # Clean column names
+        df.columns = [str(c).strip() for c in df.columns]
+        # Clean ACNO data
+        if 'ACNO' in df.columns:
+            df['ACNO'] = df['ACNO'].astype(str).str.replace("'", "").str.strip()
         return df
     except Exception as e:
         st.error(f"Error loading Master file: {e}")
@@ -610,11 +614,11 @@ with tab_manual:
     st.info("Directly add a transaction record to the database. Fields will auto-populate based on A/C No selection.")
     
     # Load Master Data
-    master_df = get_ac_master_data(master_path)
+    master_df = get_ac_master_data(master_path, os.path.getmtime(master_path) if os.path.exists(master_path) else 0)
     
     if not master_df.empty:
         # Create formatted options and a mapping back to the raw A/C No
-        master_df['Display'] = master_df.apply(lambda x: f"{x['ACNO']} - {x['BankName']} - {x['AccountName']}", axis=1)
+        master_df['Display'] = master_df.apply(lambda x: f"{x['ACNO']} - {x['BankName']} - {x['AccountName']} {x.get('Branch NicName', '')}".strip(), axis=1)
         ac_display_options = ["-- Select Account --"] + master_df['Display'].tolist()
         ac_mapping = dict(zip(master_df['Display'], master_df['ACNO']))
         
@@ -708,11 +712,11 @@ with tab_report:
     st.info("Generate a detailed bank statement with running balance.")
     
     # Reuse functionality from Manual Entry to load Master Data options
-    master_df = get_ac_master_data(master_path)
+    master_df = get_ac_master_data(master_path, os.path.getmtime(master_path) if os.path.exists(master_path) else 0)
     
     if not master_df.empty:
         # Create formatting options
-        master_df['Display'] = master_df.apply(lambda x: f"{x['ACNO']} - {x['BankName']} - {x['AccountName']}", axis=1)
+        master_df['Display'] = master_df.apply(lambda x: f"{x['ACNO']} - {x['BankName']} - {x['AccountName']} {x.get('Branch NicName', '')}".strip(), axis=1)
         ac_display_options = ["-- Select Account --"] + master_df['Display'].tolist()
         ac_mapping = dict(zip(master_df['Display'], master_df['ACNO']))
         
@@ -763,8 +767,8 @@ with tab_report:
                     
                     # Format for display
                     st.divider()
-                    st.markdown(f"**Statement for:** {r_selected_display}")
-                    st.markdown(f"**Period:** {r_start_date.strftime('%d/%m/%Y')} - {r_end_date.strftime('%d/%m/%Y')}")
+                    # st.markdown(f"**Statement for:** {r_selected_display}")
+                    # st.markdown(f"**Period:** {r_start_date.strftime('%d/%m/%Y')} - {r_end_date.strftime('%d/%m/%Y')}")
                     
                     # Create display copy for formatting
                     display_df = final_df.copy()
@@ -785,16 +789,22 @@ with tab_report:
                         disabled=True
                     )
 
-                    
                     # Export Button
                     report_filename = f"Statement_{r_selected_ac}_{pd.Timestamp.now().strftime('%Y%m%d')}.xlsx"
                     buffer = BytesIO()
                     with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-                         final_df.to_excel(writer, index=False, sheet_name='Statement')
+                         # Write info as headers at the top
+                         final_df.to_excel(writer, index=False, sheet_name='Statement', startrow=3)
                          
-                         # Basic Excel Formatting (optional but nice)
                          workbook = writer.book
                          worksheet = writer.sheets['Statement']
+                         
+                         # Add Header Info
+                         header_fmt = workbook.add_format({'bold': True, 'font_size': 12})
+                         worksheet.write(0, 0, f"Statement for: {r_selected_display}", header_fmt)
+                         worksheet.write(1, 0, f"Period: {r_start_date.strftime('%d/%m/%Y')} - {r_end_date.strftime('%d/%m/%Y')}", header_fmt)
+                         
+                         # Basic Excel Formatting
                          fmt_currency = workbook.add_format({'num_format': '#,##0.00'})
                          worksheet.set_column('B:D', 18, fmt_currency) # Debit, Credit, Balance
                          worksheet.set_column('A:A', 12) # Date
