@@ -1304,7 +1304,7 @@ with tab_balance:
     master_df = get_ac_master_data(master_path, os.path.getmtime(master_path) if os.path.exists(master_path) else 0)
     
     # UI Controls
-    col_bal1, col_bal2, col_bal3 = st.columns([1, 2, 1])
+    col_bal1, col_bal2 = st.columns([1, 3])
     
     with col_bal1:
         bal_as_of_date = st.date_input("As of Date", value=pd.Timestamp.now(), key="bal_as_of")
@@ -1334,8 +1334,6 @@ with tab_balance:
             st.warning("No accounts found in database.")
             selected_ac_list = None
     
-    with col_bal3:
-        starting_balance_global = st.number_input("Starting Balance (Global)", value=0.0, format="%.2f", key="bal_start")
     
     if st.button("📊 Generate Balance Report", type="primary", key="gen_bal_report"):
         with st.spinner("Generating report..."):
@@ -1353,7 +1351,7 @@ with tab_balance:
                     balance_df['company_name'] = ''
                 
                 # Calculate Balance
-                balance_df['balance'] = starting_balance_global + balance_df['total_debit'] - balance_df['total_credit']
+                balance_df['balance'] = balance_df['total_debit'] - balance_df['total_credit']
                 
                 # Get unique currencies for grouping
                 currencies = balance_df['currency'].dropna().unique()
