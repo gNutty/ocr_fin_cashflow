@@ -312,23 +312,14 @@ def extract_all_entries(text):
         
     return results
 
-def lookup_master(ac_no, master_path):
-    if not ac_no or not os.path.exists(master_path):
-        return None, None, None
-    
-    try:
-        df = pd.read_excel(master_path)
-        df['ACNO'] = df['ACNO'].astype(str).str.replace("'", "").str.strip()
-        clean_ac = str(ac_no).strip().replace(" ", "")
-        
-        # Exact match or partial match for account number
-        match = df[df['ACNO'].apply(lambda x: clean_ac in x or x in clean_ac)]
-        if not match.empty:
-            return match.iloc[0]['BankName'], match.iloc[0]['AccountName'], match.iloc[0]['Currency']
-    except Exception as e:
-        print(f"Lookup error: {e}")
-    
-    return None, None, None
+import db_manager as db
+
+def lookup_master(ac_no, master_path=None):
+    """
+    Lookup Bank, Company, and Currency from Database.
+    master_path argument is kept for compatibility but ignored.
+    """
+    return db.lookup_master_info(ac_no)
 
 def process_single_pdf(pdf_path, engine="Tesseract", api_key=None, master_path=None):
     if engine == "Typhoon" and api_key:
