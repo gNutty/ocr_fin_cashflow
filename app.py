@@ -844,11 +844,26 @@ with tab_db:
                     st.session_state.db_edit_mode = True
                     st.session_state.db_edit_id = selected_id
                     
+                    # Get basic info
+                    ac_no = rec_row.get("A/C No", "")
+                    bank = rec_row.get("Bank Name", "")
+                    comp = rec_row.get("Company Name", "")
+                    curr = rec_row.get("Currency", "")
+                    
+                    # Auto-lookup if info is missing or "None"
+                    if ac_no and (not bank or bank == "None" or not comp or comp == "None" or not curr or curr == "None"):
+                        l_bank, l_comp, l_curr = db.lookup_master_info(ac_no)
+                        if l_bank:
+                            bank = l_bank if (not bank or bank == "None") else bank
+                            comp = l_comp if (not comp or comp == "None") else comp
+                            curr = l_curr if (not curr or curr == "None") else curr
+                            st.toast(f"✅ Auto-lookup found: {bank}", icon="🔍")
+
                     # FORCE INIT SESSION STATE
-                    st.session_state.db_edit_ac = rec_row.get("A/C No", "")
-                    st.session_state.db_edit_bank = rec_row.get("Bank Name", "")
-                    st.session_state.db_edit_comp = rec_row.get("Company Name", "")
-                    st.session_state.db_edit_curr = rec_row.get("Currency", "")
+                    st.session_state.db_edit_ac = ac_no
+                    st.session_state.db_edit_bank = bank if bank and bank != "None" else ""
+                    st.session_state.db_edit_comp = comp if comp and comp != "None" else ""
+                    st.session_state.db_edit_curr = curr if curr and curr != "None" else ""
                     st.session_state.db_edit_date = pd.to_datetime(rec_row.get("Document Date")) if rec_row.get("Document Date") \
                                                     else pd.Timestamp.now()
                     st.session_state.db_edit_ref = rec_row.get("Reference No", "")
@@ -924,10 +939,22 @@ with tab_db:
                         # FORCE INIT STATE FOR NEW RECORD
                         new_rec = db.get_record_by_id(new_id)
                         if new_rec:
-                             st.session_state.db_edit_ac = new_rec.get("A/C No", "")
-                             st.session_state.db_edit_bank = new_rec.get("Bank Name", "")
-                             st.session_state.db_edit_comp = new_rec.get("Company Name", "")
-                             st.session_state.db_edit_curr = new_rec.get("Currency", "")
+                             ac_no = new_rec.get("A/C No", "")
+                             bank = new_rec.get("Bank Name", "")
+                             comp = new_rec.get("Company Name", "")
+                             curr = new_rec.get("Currency", "")
+                             
+                             if ac_no and (not bank or bank == "None" or not comp or comp == "None" or not curr or curr == "None"):
+                                 l_bank, l_comp, l_curr = db.lookup_master_info(ac_no)
+                                 if l_bank:
+                                     bank = l_bank if (not bank or bank == "None") else bank
+                                     comp = l_comp if (not comp or comp == "None") else comp
+                                     curr = l_curr if (not curr or curr == "None") else curr
+
+                             st.session_state.db_edit_ac = ac_no
+                             st.session_state.db_edit_bank = bank if bank and bank != "None" else ""
+                             st.session_state.db_edit_comp = comp if comp and comp != "None" else ""
+                             st.session_state.db_edit_curr = curr if curr and curr != "None" else ""
                              st.session_state.db_edit_date = pd.to_datetime(new_rec.get("Document Date")) if new_rec.get("Document Date") else pd.Timestamp.now()
                              st.session_state.db_edit_ref = new_rec.get("Reference No", "")
                              st.session_state.db_edit_total = float(new_rec.get("Total Value", 0.0)) if new_rec.get("Total Value") else 0.0
@@ -946,10 +973,22 @@ with tab_db:
                         # FORCE INIT STATE FOR NEW RECORD
                         new_rec = db.get_record_by_id(new_id)
                         if new_rec:
-                             st.session_state.db_edit_ac = new_rec.get("A/C No", "")
-                             st.session_state.db_edit_bank = new_rec.get("Bank Name", "")
-                             st.session_state.db_edit_comp = new_rec.get("Company Name", "")
-                             st.session_state.db_edit_curr = new_rec.get("Currency", "")
+                             ac_no = new_rec.get("A/C No", "")
+                             bank = new_rec.get("Bank Name", "")
+                             comp = new_rec.get("Company Name", "")
+                             curr = new_rec.get("Currency", "")
+                             
+                             if ac_no and (not bank or bank == "None" or not comp or comp == "None" or not curr or curr == "None"):
+                                 l_bank, l_comp, l_curr = db.lookup_master_info(ac_no)
+                                 if l_bank:
+                                     bank = l_bank if (not bank or bank == "None") else bank
+                                     comp = l_comp if (not comp or comp == "None") else comp
+                                     curr = l_curr if (not curr or curr == "None") else curr
+
+                             st.session_state.db_edit_ac = ac_no
+                             st.session_state.db_edit_bank = bank if bank and bank != "None" else ""
+                             st.session_state.db_edit_comp = comp if comp and comp != "None" else ""
+                             st.session_state.db_edit_curr = curr if curr and curr != "None" else ""
                              st.session_state.db_edit_date = pd.to_datetime(new_rec.get("Document Date")) if new_rec.get("Document Date") else pd.Timestamp.now()
                              st.session_state.db_edit_ref = new_rec.get("Reference No", "")
                              st.session_state.db_edit_total = float(new_rec.get("Total Value", 0.0)) if new_rec.get("Total Value") else 0.0
@@ -963,10 +1002,12 @@ with tab_db:
                     new_ac = st.session_state.get("db_edit_ac", "")
                     bank, comp, curr = db.lookup_master_info(new_ac)
                     if bank:
-                        st.session_state.db_edit_bank = bank
-                        st.session_state.db_edit_comp = comp
-                        st.session_state.db_edit_curr = curr
+                        st.session_state.db_edit_bank = bank if bank and bank != "None" else ""
+                        st.session_state.db_edit_comp = comp if comp and comp != "None" else ""
+                        st.session_state.db_edit_curr = curr if curr and curr != "None" else ""
                         st.toast(f"✅ Auto-filled details for A/C: {new_ac}")
+                    else:
+                        st.toast(f"⚠️ No master data found for A/C: {new_ac}")
 
                 # Use direct widgets instead of form
                 col_e1, col_e2 = st.columns(2)
