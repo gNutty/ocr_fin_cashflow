@@ -5,12 +5,22 @@ echo    OCR Project Environment Setup
 echo ==========================================
 echo.
 
-echo 1. Creating Virtual Environment (.venv)...
+echo 1. Checking Python Installation...
+where python >nul 2>nul
+if %ERRORLEVEL% neq 0 (
+    echo [ERROR] Python not found! Please install Python from https://www.python.org/
+    echo or check if it is added to your PATH environment variable.
+    pause
+    exit /b 1
+)
+python --version
+
+echo.
+echo 2. Creating Virtual Environment (.venv)...
 python -m venv .venv
 
 if %ERRORLEVEL% neq 0 (
     echo [ERROR] Failed to create Virtual Environment. 
-    echo Please make sure Python is installed and in your PATH.
     pause
     exit /b %ERRORLEVEL%
 )

@@ -6,8 +6,12 @@ source/Backup/
 doc/~$*
 *.csv
 *.xlsx
-!AC_Master.xlsx
+*.xls
+*.db
+*.pdf
 repro_*.py
 test_fix.py
 .streamlit/
 config.json
+.agent/
+.agents/

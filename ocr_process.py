@@ -9,8 +9,22 @@ import base64
 from io import BytesIO
 
 # --- Configuration ---
+# Defaults (will be overridden by config.json if present)
 TESSERACT_CMD = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 POPPLER_PATH = None 
+
+# Load config from config.json
+config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')
+if os.path.exists(config_path):
+    try:
+        with open(config_path, 'r') as f:
+            cfg = json.load(f)
+            if cfg.get("TESSERACT_PATH"):
+                TESSERACT_CMD = cfg.get("TESSERACT_PATH")
+            if cfg.get("POPPLER_PATH"):
+                POPPLER_PATH = cfg.get("POPPLER_PATH")
+    except Exception as e:
+        print(f"Warning: Could not load config.json: {e}")
 
 def setup_tesseract():
     if os.path.exists(TESSERACT_CMD):

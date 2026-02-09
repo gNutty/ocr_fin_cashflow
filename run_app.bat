@@ -10,7 +10,14 @@ if exist ".venv\Scripts\activate.bat" (
     echo Activating venv...
     call venv\Scripts\activate.bat
 ) else (
-    echo No virtual environment found. Using system Python.
+    echo.
+    echo ---------------------------------------------------------
+    echo [ERROR] No virtual environment found!
+    echo [TIP] Please run 'setup_env.bat' first to install dependencies.
+    echo ---------------------------------------------------------
+    echo.
+    pause
+    exit /b 1
 )
 
 echo Starting Streamlit App (app.py)...

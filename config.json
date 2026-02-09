@@ -1,3 +1,5 @@
 {
-  "API_KEY": "sk-zj24hl4LebuN1FtGeDnjvbHw1EqDOkfNkes2XH5pruDgikNB"
+  "API_KEY": "sk-zj24hl4LebuN1FtGeDnjvbHw1EqDOkfNkes2XH5pruDgikNB",
+  "TESSERACT_PATH": "C:\\Program Files\\Tesseract-OCR\\tesseract.exe",
+  "POPPLER_PATH": "C:\\poppler\\Library\\bin"
 }
