@@ -6,7 +6,7 @@ st.set_page_config(page_title="Smart Cash Flow OCR", page_icon="💰", layout="w
 import os
 import pandas as pd
 import json
-from ocr_process import process_single_pdf, lookup_master
+from ocr_process import process_single_pdf, lookup_master, POPPLER_PATH
 from excel_handler import append_to_excel
 import urllib.parse
 import base64
@@ -41,7 +41,7 @@ def render_pdf(file_path, page_num=1):
             st.error(f"File not found: {file_path}")
             return
 
-        images = convert_from_path(file_path, first_page=page_num, last_page=page_num)
+        images = convert_from_path(file_path, first_page=page_num, last_page=page_num, poppler_path=POPPLER_PATH)
         if images:
             st.image(images[0], caption=f"Page {page_num} of {os.path.basename(file_path)}", use_container_width=True)
         else:
@@ -715,15 +715,33 @@ with tab_db:
     with st.expander("🔍 Search & Filter Options", expanded=False):
         # Use st.form to prevent rerun on every filter change (Best Practice #5)
         with st.form("filter_form"):
-            banks, companies, currencies, years, months = get_cached_filter_options()
+            ac_nos, banks, companies, currencies, years, months = get_cached_filter_options()
             
-            col_f1, col_f2, col_f3 = st.columns(3)
+            # A/C No filter on the leftmost
+            col_f0, col_f1, col_f2, col_f3 = st.columns(4)
+            with col_f0:
+                f_ac_no = st.selectbox("Filter by A/C No", ac_nos, key="f_ac_no")
             with col_f1:
                 f_bank = st.selectbox("Filter by Bank", banks, key="f_bank")
             with col_f2:
                 f_company = st.selectbox("Filter by Company", companies, key="f_company")
             with col_f3:
                 f_currency = st.selectbox("Filter by Currency", currencies, key="f_currency")
+            
+            # Show selected A/C No info immediately when selected
+            if f_ac_no and f_ac_no != "All":
+                # Lookup details from master data
+                ac_bank, ac_comp, ac_curr = db.lookup_master_info(f_ac_no)
+                
+                # Get Branch from master records
+                ac_master_df = get_ac_master_data()
+                ac_branch = ""
+                if not ac_master_df.empty and "ACNO" in ac_master_df.columns:
+                    ac_match = ac_master_df[ac_master_df["ACNO"] == f_ac_no]
+                    if not ac_match.empty:
+                        ac_branch = ac_match.iloc[0].get("Branch", "")
+                
+                st.success(f"📌 **A/C No:** `{f_ac_no}` | **Bank:** `{ac_bank or 'N/A'}` | **Branch:** `{ac_branch or 'N/A'}`")
                 
             st.markdown("##### 📅 Date Filtering")
             date_filter_type = st.radio("Filter Type", ["All", "Date Range", "Year & Month"], horizontal=True)
@@ -759,6 +777,8 @@ with tab_db:
             apply_btn = st.form_submit_button("🔍 Apply Filters", use_container_width=True)
     
     # Initialize filter state
+    if "applied_ac_no" not in st.session_state:
+        st.session_state.applied_ac_no = "All"
     if "applied_bank" not in st.session_state:
         st.session_state.applied_bank = "All"
     if "applied_company" not in st.session_state:
@@ -767,6 +787,7 @@ with tab_db:
         st.session_state.applied_currency = "All"
         
     if apply_btn:
+        st.session_state.applied_ac_no = f_ac_no
         st.session_state.applied_bank = f_bank
         st.session_state.applied_company = f_company
         st.session_state.applied_currency = f_currency
@@ -774,12 +795,33 @@ with tab_db:
         st.session_state.applied_end_date = f_end_date
         
     hist_df = db.load_records(
+        ac_no=st.session_state.applied_ac_no,
         bank=st.session_state.applied_bank, 
         company=st.session_state.applied_company,
         currency=st.session_state.applied_currency,
         start_date=st.session_state.get("applied_start_date"),
         end_date=st.session_state.get("applied_end_date")
     )
+    
+    # Sort by Document Date ascending
+    if not hist_df.empty and "Document Date" in hist_df.columns:
+        hist_df = hist_df.sort_values(by="Document Date", ascending=True)
+    
+    # Display selected A/C No info if filtered by specific account
+    if st.session_state.applied_ac_no != "All":
+        selected_ac = st.session_state.applied_ac_no
+        # Lookup details from master data
+        l_bank, l_comp, l_curr = db.lookup_master_info(selected_ac)
+        
+        # Get Branch from master records
+        master_df = get_ac_master_data()
+        l_branch = ""
+        if not master_df.empty and "ACNO" in master_df.columns:
+            match = master_df[master_df["ACNO"] == selected_ac]
+            if not match.empty:
+                l_branch = match.iloc[0].get("Branch", "")
+        
+        st.info(f"**Selected Account:** A/C No: `{selected_ac}` | Bank: `{l_bank or 'N/A'}` | Branch: `{l_branch or 'N/A'}`")
     
     # Save filtered IDs for navigation
     if not hist_df.empty:

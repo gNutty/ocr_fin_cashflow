@@ -227,10 +227,11 @@ def load_records(bank=None, company=None, currency=None, start_date=None, end_da
     return df
 
 def get_filter_options():
-    """Get unique banks, companies, and currencies for filter dropdowns."""
+    """Get unique banks, companies, currencies, and A/C numbers for filter dropdowns."""
     conn = get_connection()
     try:
-        df = pd.read_sql_query("SELECT DISTINCT bank_name, company_name, currency, doc_date FROM transactions", conn)
+        df = pd.read_sql_query("SELECT DISTINCT ac_no, bank_name, company_name, currency, doc_date FROM transactions", conn)
+        ac_nos = sorted(df["ac_no"].dropna().unique().tolist())
         banks = sorted(df["bank_name"].dropna().unique().tolist())
         companies = sorted(df["company_name"].dropna().unique().tolist())
         currencies = sorted(df["currency"].dropna().unique().tolist())
@@ -248,9 +249,9 @@ def get_filter_options():
         sorted_years = sorted(list(years), reverse=True)
         sorted_months = sorted(list(months))
         
-        return ["All"] + banks, ["All"] + companies, ["All"] + currencies, ["All"] + sorted_years, ["All"] + sorted_months
+        return ["All"] + ac_nos, ["All"] + banks, ["All"] + companies, ["All"] + currencies, ["All"] + sorted_years, ["All"] + sorted_months
     except Exception:
-        return ["All"], ["All"], ["All"], ["All"], ["All"]
+        return ["All"], ["All"], ["All"], ["All"], ["All"], ["All"]
 
 def delete_records(ids):
     """Delete records by ID list."""
