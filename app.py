@@ -635,8 +635,12 @@ with tab_process:
                          val_float = 0.0
                     e_total = st.number_input("Total Value", value=val_float, format="%.2f", key=f"edit_total_{idx}")
                     
-                    target_idx = 0 if record.get("Transaction") == "DEBIT" else 1
-                    e_trans = st.selectbox("Transaction", ["DEBIT", "CREDIT"], index=target_idx, key=f"edit_trans_{idx}")
+                    # BF is the 3rd option (index 2)
+                    trans_val = record.get("Transaction", "DEBIT")
+                    if trans_val == "DEBIT": target_idx = 0
+                    elif trans_val == "CREDIT": target_idx = 1
+                    else: target_idx = 2 # BF
+                    e_trans = st.selectbox("Transaction", ["DEBIT", "CREDIT", "BF"], index=target_idx, key=f"edit_trans_{idx}")
                     
                 st.divider()
                 
@@ -718,9 +722,22 @@ with tab_db:
             ac_nos, banks, companies, currencies, years, months = get_cached_filter_options()
             
             # A/C No filter on the leftmost
+            # Use Master Data for formatted A/C options
+            master_df_filter = get_ac_master_data()
+            if not master_df_filter.empty:
+                master_df_filter['Display'] = master_df_filter.apply(lambda x: f"{x['ACNO']} - {x['BankName']} - {x['AccountName']} {x.get('Branch NicName', '')}".strip(), axis=1)
+                ac_display_list = ["All"] + master_df_filter['Display'].tolist()
+                ac_filter_map = dict(zip(master_df_filter['Display'], master_df_filter['ACNO']))
+                ac_filter_map["All"] = "All"
+            else:
+                ac_display_list = ["All"] + ac_nos
+                ac_filter_map = {x: x for x in ac_display_list}
+
             col_f0, col_f1, col_f2, col_f3 = st.columns(4)
             with col_f0:
-                f_ac_no = st.selectbox("Filter by A/C No", ac_nos, key="f_ac_no")
+                f_ac_display = st.selectbox("Filter by A/C No", ac_display_list, key="f_ac_display")
+                f_ac_no = ac_filter_map.get(f_ac_display, "All")
+                
             with col_f1:
                 f_bank = st.selectbox("Filter by Bank", banks, key="f_bank")
             with col_f2:
@@ -734,10 +751,9 @@ with tab_db:
                 ac_bank, ac_comp, ac_curr = db.lookup_master_info(f_ac_no)
                 
                 # Get Branch from master records
-                ac_master_df = get_ac_master_data()
                 ac_branch = ""
-                if not ac_master_df.empty and "ACNO" in ac_master_df.columns:
-                    ac_match = ac_master_df[ac_master_df["ACNO"] == f_ac_no]
+                if not master_df_filter.empty and "ACNO" in master_df_filter.columns:
+                    ac_match = master_df_filter[master_df_filter["ACNO"] == f_ac_no]
                     if not ac_match.empty:
                         ac_branch = ac_match.iloc[0].get("Branch", "")
                 
@@ -1066,7 +1082,7 @@ with tab_db:
                     e_ref = st.text_input("Reference No", key="db_edit_ref")
                     e_total = st.number_input("Total Value", format="%.2f", key="db_edit_total")
                     
-                    e_trans = st.selectbox("Transaction", ["DEBIT", "CREDIT"], key="db_edit_trans")
+                    e_trans = st.selectbox("Transaction", ["DEBIT", "CREDIT", "BF"], key="db_edit_trans")
                 
                 st.divider()
                 
@@ -1162,7 +1178,7 @@ with tab_manual:
                     curr_val = match.iloc[0].get('Currency', '')
                     acc_type_val = match.iloc[0].get('AccountType', '')
             
-            m_transaction = st.selectbox("Transaction Type", ["DEBIT", "CREDIT"], key="m_trans")
+            m_transaction = st.selectbox("Transaction Type", ["DEBIT", "CREDIT", "BF"], key="m_trans")
             m_date = st.date_input("Document Date", value=pd.Timestamp.now(), key="m_date")
             m_ref = st.text_input("Reference No", key="m_ref_input", value=st.session_state.m_ref)
             m_total = st.number_input("Total Value", min_value=0.0, format="%.2f", key="m_total_input", value=st.session_state.m_total)
@@ -1261,21 +1277,27 @@ with tab_report:
                 
                 if not report_df.empty:
                     # Data Transformation Logic
-                    # 1. Sort by Date
-                    report_df = report_df.sort_values(by=["Document Date", "id"], ascending=[True, True])
+                    # 1. Sort by Date -> BF First -> id
+                    report_df['Sort_Order'] = report_df['Transaction'].apply(lambda x: 0 if x == 'BF' else 1)
+                    report_df = report_df.sort_values(by=["Document Date", "Sort_Order", "id"], ascending=[True, True, True])
                     
-                    # 2. Pivot/Melt Logic: Separate Total Value into Debit/Credit columns
+                    # 2. Pivot/Melt Logic: Separate Total Value into Debit/Credit/BF columns
                     report_df['Debit'] = report_df.apply(lambda x: x['Total Value'] if x['Transaction'] == 'DEBIT' else 0, axis=1)
                     report_df['Credit'] = report_df.apply(lambda x: x['Total Value'] if x['Transaction'] == 'CREDIT' else 0, axis=1)
+                    report_df['BF'] = report_df.apply(lambda x: x['Total Value'] if x['Transaction'] == 'BF' else 0, axis=1)
                     
                     # 3. Calculate Running Balance
-                    # Calculate cumulative sum of (Debit - Credit)
-                    report_df['Net Change'] = report_df['Debit'] - report_df['Credit']
+                    # Calculate cumulative sum of (Debit - Credit + BF)
+                    # Assuming BF is a positive addition (Balance Forward)
+                    report_df['Net Change'] = report_df['Debit'] - report_df['Credit'] + report_df['BF']
                     report_df['Balance'] = starting_balance + report_df['Net Change'].cumsum()
                     
                     # 4. Final Formatting
-                    # Columns needed: Date, Debit, Credit, Balance, Others (Ref No)
-                    final_df = report_df[['Document Date', 'Debit', 'Credit', 'Balance', 'Reference No']].copy()
+                    # Columns needed: Date, BF, Debit, Credit, Balance, Others (Ref No)
+                    # Reordering to put BF first or last? Usually Date, Desc, BF, Debit, Credit, Balance
+                    # But here structure is Date, Debit, Credit, Balance, Others
+                    # Let's add BF before Debit
+                    final_df = report_df[['Document Date', 'BF', 'Debit', 'Credit', 'Balance', 'Reference No']].copy()
                     final_df = final_df.rename(columns={'Document Date': 'Date', 'Reference No': 'Others'})
                     
                     # Format for display
@@ -1285,13 +1307,14 @@ with tab_report:
                     
                     # Create display copy for formatting
                     display_df = final_df.copy()
-                    for col in ["Debit", "Credit", "Balance"]:
+                    for col in ["BF", "Debit", "Credit", "Balance"]:
                          display_df[col] = display_df[col].apply(lambda x: f"{x:,.2f}" if pd.notna(x) else "0.00")
                     
                     st.data_editor(
                         display_df,
                         column_config={
                             "Date": st.column_config.TextColumn("Date"),
+                            "BF": st.column_config.TextColumn("BF"),
                             "Debit": st.column_config.TextColumn("Debit"),
                             "Credit": st.column_config.TextColumn("Credit"),
                             "Balance": st.column_config.TextColumn("Balance"),
@@ -1319,9 +1342,9 @@ with tab_report:
                          
                          # Basic Excel Formatting
                          fmt_currency = workbook.add_format({'num_format': '#,##0.00'})
-                         worksheet.set_column('B:D', 18, fmt_currency) # Debit, Credit, Balance
+                         worksheet.set_column('B:E', 18, fmt_currency) # BF, Debit, Credit, Balance
                          worksheet.set_column('A:A', 12) # Date
-                         worksheet.set_column('E:E', 25) # Others
+                         worksheet.set_column('F:F', 25) # Others
                     
                     st.download_button(
                         label="📥 Download Excel Report",
@@ -1392,8 +1415,8 @@ with tab_balance:
                     balance_df['Branch'] = ''
                     balance_df['company_name'] = ''
                 
-                # Calculate Balance
-                balance_df['balance'] = balance_df['total_debit'] - balance_df['total_credit']
+                # Calculate Balance (Debit - Credit + BF)
+                balance_df['balance'] = balance_df['total_debit'] - balance_df['total_credit'] + balance_df['total_bf']
                 
                 # Get unique currencies for grouping
                 currencies = balance_df['currency'].dropna().unique()
@@ -1444,12 +1467,14 @@ with tab_balance:
                 # Export Button
                 if total_data_for_export:
                     export_df = pd.concat(total_data_for_export, ignore_index=True)
-                    export_df = export_df[['bank_name', 'Branch', 'ac_no', 'currency', 'total_debit', 'total_credit', 'balance']]
+                    # Include total_bf in export for completeness
+                    export_df = export_df[['bank_name', 'Branch', 'ac_no', 'currency', 'total_debit', 'total_credit', 'total_bf', 'balance']]
                     export_df = export_df.rename(columns={
                         'bank_name': 'Bank',
                         'ac_no': 'A/C No.',
                         'total_debit': 'Total Debit',
                         'total_credit': 'Total Credit',
+                        'total_bf': 'Total BF',
                         'balance': 'BANK BAL.',
                         'currency': 'Currency'
                     })
@@ -1466,7 +1491,7 @@ with tab_balance:
                         
                         # Format currency columns
                         fmt_currency = workbook.add_format({'num_format': '#,##0.00'})
-                        worksheet.set_column('E:G', 18, fmt_currency)
+                        worksheet.set_column('E:H', 18, fmt_currency)
                     
                     st.download_button(
                         label="📥 Download Excel Report",

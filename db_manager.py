@@ -309,7 +309,8 @@ def get_balance_summary(as_of_date, account_list=None):
             bank_name,
             currency,
             SUM(CASE WHEN transaction_details = 'DEBIT' THEN total_value ELSE 0 END) as total_debit,
-            SUM(CASE WHEN transaction_details = 'CREDIT' THEN total_value ELSE 0 END) as total_credit
+            SUM(CASE WHEN transaction_details = 'CREDIT' THEN total_value ELSE 0 END) as total_credit,
+            SUM(CASE WHEN transaction_details = 'BF' THEN total_value ELSE 0 END) as total_bf
         FROM transactions
         WHERE doc_date >= ? AND doc_date <= ?
     """
@@ -356,8 +357,8 @@ def update_record(record_id, data):
         
         # Validate transaction type
         transaction = str(data.get("transaction_details", "")).upper()
-        if transaction not in ["DEBIT", "CREDIT"]:
-            return False, "Transaction must be DEBIT or CREDIT."
+        if transaction not in ["DEBIT", "CREDIT", "BF"]:
+            return False, "Transaction must be DEBIT, CREDIT or BF."
         
         conn = get_connection()
         c = conn.cursor()
