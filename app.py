@@ -1249,24 +1249,42 @@ with tab_report:
         ac_display_options = ["-- Select Account --"] + master_df['Display'].tolist()
         ac_mapping = dict(zip(master_df['Display'], master_df['ACNO']))
         
-        col_r1, col_r2, col_r3 = st.columns([1.5, 1, 1])
-        
-        with col_r1:
-            r_selected_display = st.selectbox("Select Account", ac_display_options, key="report_ac")
-            r_selected_ac = ac_mapping.get(r_selected_display, None)
+        with st.expander("🔍 Filter & Search Options", expanded=True):
+            with st.form("rpt_filter_form"):
+                col_r1, col_r2, col_r3, col_r4 = st.columns([1.5, 0.6, 0.6, 1])
+                
+                with col_r1:
+                    r_selected_display = st.selectbox("Select Account", ac_display_options, key="report_ac")
+                    r_selected_ac = ac_mapping.get(r_selected_display, None)
+                    
+                # Get year/month options from cached data
+                _, _, _, _, years_list, months_list = get_cached_filter_options()
+                # Filter out "All" for this specific report if necessary
+                rpt_years = [y for y in years_list if y != "All"]
+                rpt_months = [m for m in months_list if m != "All"]
+                
+                # Default to current year/month if not selected
+                curr_year = str(pd.Timestamp.now().year)
+                curr_month = f"{pd.Timestamp.now().month:02d}"
+                
+                with col_r2:
+                    r_year = st.selectbox("Year", rpt_years, index=rpt_years.index(curr_year) if curr_year in rpt_years else 0, key="rpt_year")
+                    
+                with col_r3:
+                    r_month = st.selectbox("Month", rpt_months, index=rpt_months.index(curr_month) if curr_month in rpt_months else 0, key="rpt_month")
+                    
+                with col_r4:
+                    starting_balance = st.number_input("Starting Balance", value=0.0, format="%.2f", key="rpt_start_bal")
+                
+                generate_btn = st.form_submit_button("📊 Generate Report", type="primary", use_container_width=False)
+
+        if generate_btn:
+            # Calculate start/end date based on selected year/month
+            import calendar
+            last_day = calendar.monthrange(int(r_year), int(r_month))[1]
+            r_start_date = f"{r_year}-{r_month}-01"
+            r_end_date = f"{r_year}-{r_month}-{last_day}"
             
-        with col_r2:
-             # Date Range for Report
-            r_start_date = st.date_input("From Date", value=pd.Timestamp.now() - pd.Timedelta(days=30), key="rpt_start")
-            
-        with col_r3:
-            r_end_date = st.date_input("To Date", value=pd.Timestamp.now(), key="rpt_end")
-            
-        col_r4, col_r5 = st.columns([1, 2])
-        with col_r4:
-            starting_balance = st.number_input("Starting Balance", value=0.0, format="%.2f")
-            
-        if st.button("📊 Generate Report", type="primary"):
             if r_selected_ac and r_selected_ac != "-- Select Account --":
                 # Load Data filtered by Account and Date Range
                 report_df = db.load_records(
@@ -1303,7 +1321,7 @@ with tab_report:
                     # Format for display
                     st.divider()
                     # st.markdown(f"**Statement for:** {r_selected_display}")
-                    # st.markdown(f"**Period:** {r_start_date.strftime('%d/%m/%Y')} - {r_end_date.strftime('%d/%m/%Y')}")
+                    # st.markdown(f"**Period:** {r_start_date}")
                     
                     # Create display copy for formatting
                     display_df = final_df.copy()
@@ -1326,7 +1344,7 @@ with tab_report:
                     )
 
                     # Export Button
-                    report_filename = f"Statement_{r_selected_ac}_{pd.Timestamp.now().strftime('%Y%m%d')}.xlsx"
+                    report_filename = f"Statement_{r_selected_ac}_{r_year}{r_month}.xlsx"
                     buffer = BytesIO()
                     with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
                          # Write info as headers at the top
@@ -1338,7 +1356,7 @@ with tab_report:
                          # Add Header Info
                          header_fmt = workbook.add_format({'bold': True, 'font_size': 12})
                          worksheet.write(0, 0, f"Statement for: {r_selected_display}", header_fmt)
-                         worksheet.write(1, 0, f"Period: {r_start_date.strftime('%d/%m/%Y')} - {r_end_date.strftime('%d/%m/%Y')}", header_fmt)
+                         worksheet.write(1, 0, f"Period: {r_month}/{r_year}", header_fmt)
                          
                          # Basic Excel Formatting
                          fmt_currency = workbook.add_format({'num_format': '#,##0.00'})
@@ -1368,39 +1386,42 @@ with tab_balance:
     # Load Master Data for Branch info
     master_df = get_ac_master_data(master_path, os.path.getmtime(master_path) if os.path.exists(master_path) else 0)
     
-    # UI Controls
-    col_bal1, col_bal2 = st.columns([1, 3])
-    
-    with col_bal1:
-        bal_as_of_date = st.date_input("As of Date", value=pd.Timestamp.now(), key="bal_as_of")
-    
-    with col_bal2:
-        # Get account list from database
-        account_list = db.get_account_list()
-        if account_list:
-            # Create display options
-            account_options = [f"{a['ac_no']} - {a['bank_name']} ({a['currency']})" for a in account_list]
-            account_mapping = {f"{a['ac_no']} - {a['bank_name']} ({a['currency']})": a['ac_no'] for a in account_list}
+    with st.expander("🔍 Filter & Search Options", expanded=True):
+        with st.form("bal_filter_form"):
+            # UI Controls
+            col_bal1, col_bal2 = st.columns([1, 3])
             
-            selected_accounts_display = st.multiselect(
-                "Select Accounts (Default: All)",
-                options=account_options,
-                default=[],
-                key="bal_accounts",
-                help="Leave empty to include all accounts"
-            )
+            with col_bal1:
+                bal_as_of_date = st.date_input("As of Date", value=pd.Timestamp.now(), key="bal_as_of")
             
-            # Map display back to ac_no
-            if selected_accounts_display:
-                selected_ac_list = [account_mapping[d] for d in selected_accounts_display]
-            else:
-                selected_ac_list = None  # All accounts
-        else:
-            st.warning("No accounts found in database.")
-            selected_ac_list = None
+            with col_bal2:
+                # Get account list from database
+                account_list = db.get_account_list()
+                if account_list:
+                    # Create display options
+                    account_options = [f"{a['ac_no']} - {a['bank_name']} ({a['currency']})" for a in account_list]
+                    account_mapping = {f"{a['ac_no']} - {a['bank_name']} ({a['currency']})": a['ac_no'] for a in account_list}
+                    
+                    selected_accounts_display = st.multiselect(
+                        "Select Accounts (Default: All)",
+                        options=account_options,
+                        default=[],
+                        key="bal_accounts",
+                        help="Leave empty to include all accounts"
+                    )
+                    
+                    # Map display back to ac_no
+                    if selected_accounts_display:
+                        selected_ac_list = [account_mapping[d] for d in selected_accounts_display]
+                    else:
+                        selected_ac_list = None  # All accounts
+                else:
+                    st.warning("No accounts found in database.")
+                    selected_ac_list = None
+            
+            gen_bal_btn = st.form_submit_button("📊 Generate Balance Report", type="primary")
     
-    
-    if st.button("📊 Generate Balance Report", type="primary", key="gen_bal_report"):
+    if gen_bal_btn:
         with st.spinner("Generating report..."):
             # Get balance summary from database
             balance_df = db.get_balance_summary(bal_as_of_date, selected_ac_list)
