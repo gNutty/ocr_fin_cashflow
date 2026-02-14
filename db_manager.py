@@ -227,14 +227,14 @@ def load_records(bank=None, company=None, currency=None, start_date=None, end_da
     return df
 
 def get_filter_options():
-    """Get unique banks, companies, currencies, and A/C numbers for filter dropdowns."""
+    """Get unique banks, companies, currencies, and account numbers for filter dropdowns."""
     conn = get_connection()
     try:
-        df = pd.read_sql_query("SELECT DISTINCT ac_no, bank_name, company_name, currency, doc_date FROM transactions", conn)
-        ac_nos = sorted(df["ac_no"].dropna().unique().tolist())
+        df = pd.read_sql_query("SELECT DISTINCT bank_name, company_name, currency, ac_no, doc_date FROM transactions", conn)
         banks = sorted(df["bank_name"].dropna().unique().tolist())
         companies = sorted(df["company_name"].dropna().unique().tolist())
         currencies = sorted(df["currency"].dropna().unique().tolist())
+        ac_nos = sorted(df["ac_no"].dropna().unique().tolist())
         
         # Extract years and months from doc_date
         years = set()
@@ -249,7 +249,7 @@ def get_filter_options():
         sorted_years = sorted(list(years), reverse=True)
         sorted_months = sorted(list(months))
         
-        return ["All"] + ac_nos, ["All"] + banks, ["All"] + companies, ["All"] + currencies, ["All"] + sorted_years, ["All"] + sorted_months
+        return ["All"] + banks, ["All"] + companies, ["All"] + currencies, ["All"] + ac_nos, ["All"] + sorted_years, ["All"] + sorted_months
     except Exception:
         return ["All"], ["All"], ["All"], ["All"], ["All"], ["All"]
 
@@ -358,7 +358,7 @@ def update_record(record_id, data):
         # Validate transaction type
         transaction = str(data.get("transaction_details", "")).upper()
         if transaction not in ["DEBIT", "CREDIT", "BF"]:
-            return False, "Transaction must be DEBIT, CREDIT or BF."
+            return False, "Transaction must be DEBIT, CREDIT, or BF."
         
         conn = get_connection()
         c = conn.cursor()
@@ -606,20 +606,20 @@ def lookup_master_info(ac_no):
     """
     Lookup Bank, Company, and Currency from master data based on A/C No.
     Supports partial matching (input in DB or DB in input).
-    Returns: (BankName, AccountName, Currency) or (None, None, None)
+    Returns: (BankName, AccountName, Currency, Branch) or (None, None, None, None)
     """
     if not ac_no:
-        return None, None, None
+        return None, None, None, None
         
     clean_input = str(ac_no).strip().replace(" ", "").replace("-", "")
     if not clean_input:
-        return None, None, None
+        return None, None, None, None
 
     conn = get_connection()
     try:
         # Fetch all ACNOs to perform flexible matching in Python
         # (Since SQLite restricted LIKE/INSTR might miss some fuzzy cases or reverse containment)
-        df = pd.read_sql_query("SELECT ac_no, bank_name, account_name, currency FROM ac_master", conn)
+        df = pd.read_sql_query("SELECT ac_no, bank_name, account_name, currency, branch FROM ac_master", conn)
         
         # Normalize DB ACNOs
         df['clean_ac'] = df['ac_no'].astype(str).str.strip().str.replace("'", "").str.replace(" ", "").str.replace("-", "")
@@ -630,10 +630,10 @@ def lookup_master_info(ac_no):
         if not match.empty:
             # Return first match
             row = match.iloc[0]
-            return row['bank_name'], row['account_name'], row['currency']
+            return row['bank_name'], row['account_name'], row['currency'], row['branch']
             
     except Exception as e:
         print(f"DB Lookup Error: {e}")
-        return None, None, None
+        return None, None, None, None
 
-    return None, None, None
+    return None, None, None, None

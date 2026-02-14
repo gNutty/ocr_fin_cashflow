@@ -14,6 +14,7 @@ from io import BytesIO
 from PIL import Image
 from pdf2image import convert_from_path
 import db_manager as db
+import re
 
 # --- Initialization ---
 db.init_db()
@@ -585,7 +586,7 @@ with tab_process:
                     # Get the new A/C value from session state using the unique key
                     new_ac = st.session_state.get(f"edit_ac_{idx}", "")
                     # Lookup in DB
-                    match_bank, match_comp, match_curr = db.lookup_master_info(new_ac)
+                    match_bank, match_comp, match_curr, match_branch = db.lookup_master_info(new_ac)
                     if match_bank:
                         # Update UI Widgets ONLY
                         # DO NOT update current_results here (wait for Save button)
@@ -635,12 +636,19 @@ with tab_process:
                          val_float = 0.0
                     e_total = st.number_input("Total Value", value=val_float, format="%.2f", key=f"edit_total_{idx}")
                     
+<<<<<<< HEAD
                     # BF is the 3rd option (index 2)
                     trans_val = record.get("Transaction", "DEBIT")
                     if trans_val == "DEBIT": target_idx = 0
                     elif trans_val == "CREDIT": target_idx = 1
                     else: target_idx = 2 # BF
                     e_trans = st.selectbox("Transaction", ["DEBIT", "CREDIT", "BF"], index=target_idx, key=f"edit_trans_{idx}")
+=======
+                    trans_options = ["DEBIT", "CREDIT", "BF"]
+                    curr_trans = record.get("Transaction", "DEBIT")
+                    target_idx = trans_options.index(curr_trans) if curr_trans in trans_options else 0
+                    e_trans = st.selectbox("Transaction", trans_options, index=target_idx, key=f"edit_trans_{idx}")
+>>>>>>> 7a29223 (feat: Manual Entry improvements, BF transaction type, and Navigator filters)
                     
                 st.divider()
                 
@@ -719,6 +727,7 @@ with tab_db:
     with st.expander("🔍 Search & Filter Options", expanded=False):
         # Use st.form to prevent rerun on every filter change (Best Practice #5)
         with st.form("filter_form"):
+<<<<<<< HEAD
             ac_nos, banks, companies, currencies, years, months = get_cached_filter_options()
             
             # A/C No filter on the leftmost
@@ -738,11 +747,29 @@ with tab_db:
                 f_ac_display = st.selectbox("Filter by A/C No", ac_display_list, key="f_ac_display")
                 f_ac_no = ac_filter_map.get(f_ac_display, "All")
                 
+=======
+            banks, companies, currencies, ac_nos, years, months = get_cached_filter_options()
+            
+            apply_btn = False # Placeholder to be updated below
+            
+            # Prepare display format mapping
+            ac_display_map = {"All": "All"}
+            master_df = get_ac_master_data(master_path, os.path.getmtime(master_path) if os.path.exists(master_path) else 0)
+            if not master_df.empty:
+                for _, row in master_df.iterrows():
+                    disp = f"{row['ACNO']} - {row['BankName']} - {row['AccountName']} {row.get('Branch NicName', '')}".strip()
+                    ac_display_map[row['ACNO']] = disp
+
+            col_f1, col_f2, col_f3, col_f4 = st.columns(4)
+>>>>>>> 7a29223 (feat: Manual Entry improvements, BF transaction type, and Navigator filters)
             with col_f1:
-                f_bank = st.selectbox("Filter by Bank", banks, key="f_bank")
+                # Filter by Account with display mapping
+                f_ac_no = st.selectbox("Filter by Account", ac_nos, key="f_ac_no", format_func=lambda x: ac_display_map.get(x, x))
             with col_f2:
-                f_company = st.selectbox("Filter by Company", companies, key="f_company")
+                f_bank = st.selectbox("Filter by Bank", banks, key="f_bank")
             with col_f3:
+                f_company = st.selectbox("Filter by Company", companies, key="f_company")
+            with col_f4:
                 f_currency = st.selectbox("Filter by Currency", currencies, key="f_currency")
             
             # Show selected A/C No info immediately when selected
@@ -792,7 +819,10 @@ with tab_db:
             
             apply_btn = st.form_submit_button("🔍 Apply Filters", use_container_width=True)
     
+<<<<<<< HEAD
     # Initialize filter state
+=======
+>>>>>>> 7a29223 (feat: Manual Entry improvements, BF transaction type, and Navigator filters)
     if "applied_ac_no" not in st.session_state:
         st.session_state.applied_ac_no = "All"
     if "applied_bank" not in st.session_state:
@@ -815,6 +845,7 @@ with tab_db:
         bank=st.session_state.applied_bank, 
         company=st.session_state.applied_company,
         currency=st.session_state.applied_currency,
+        ac_no=st.session_state.applied_ac_no,
         start_date=st.session_state.get("applied_start_date"),
         end_date=st.session_state.get("applied_end_date")
     )
@@ -925,7 +956,8 @@ with tab_db:
                     st.session_state.db_edit_date = pd.to_datetime(rec_row.get("Document Date")) if rec_row.get("Document Date") \
                                                     else pd.Timestamp.now()
                     st.session_state.db_edit_ref = rec_row.get("Reference No", "")
-                    st.session_state.db_edit_total = float(rec_row.get("Total Value", 0.0)) if rec_row.get("Total Value") else 0.0
+                    val = float(rec_row.get("Total Value", 0.0)) if rec_row.get("Total Value") else 0.0
+                    st.session_state.db_edit_total = f"{val:,.2f}"
                     st.session_state.db_edit_trans = rec_row.get("Transaction", "DEBIT")
                     
                     st.rerun()
@@ -1015,7 +1047,8 @@ with tab_db:
                              st.session_state.db_edit_curr = curr if curr and curr != "None" else ""
                              st.session_state.db_edit_date = pd.to_datetime(new_rec.get("Document Date")) if new_rec.get("Document Date") else pd.Timestamp.now()
                              st.session_state.db_edit_ref = new_rec.get("Reference No", "")
-                             st.session_state.db_edit_total = float(new_rec.get("Total Value", 0.0)) if new_rec.get("Total Value") else 0.0
+                             val = float(new_rec.get("Total Value", 0.0)) if new_rec.get("Total Value") else 0.0
+                             st.session_state.db_edit_total = f"{val:,.2f}"
                              st.session_state.db_edit_trans = new_rec.get("Transaction", "DEBIT")
                         
                         st.rerun()
@@ -1049,16 +1082,28 @@ with tab_db:
                              st.session_state.db_edit_curr = curr if curr and curr != "None" else ""
                              st.session_state.db_edit_date = pd.to_datetime(new_rec.get("Document Date")) if new_rec.get("Document Date") else pd.Timestamp.now()
                              st.session_state.db_edit_ref = new_rec.get("Reference No", "")
-                             st.session_state.db_edit_total = float(new_rec.get("Total Value", 0.0)) if new_rec.get("Total Value") else 0.0
+                             val = float(new_rec.get("Total Value", 0.0)) if new_rec.get("Total Value") else 0.0
+                             st.session_state.db_edit_total = f"{val:,.2f}"
                              st.session_state.db_edit_trans = new_rec.get("Transaction", "DEBIT")
                         
                         st.rerun()
                 st.divider()
                 
                 # define callback
+                def format_db_total_input():
+                    val = st.session_state.db_edit_total
+                    # Keep only digits and decimal point
+                    clean_val = re.sub(r"[^\d.]", "", val)
+                    try:
+                        if clean_val:
+                            formatted = f"{float(clean_val):,.2f}"
+                            st.session_state.db_edit_total = formatted
+                    except ValueError:
+                        pass
+
                 def on_db_ac_change():
                     new_ac = st.session_state.get("db_edit_ac", "")
-                    bank, comp, curr = db.lookup_master_info(new_ac)
+                    bank, comp, curr, branch = db.lookup_master_info(new_ac)
                     if bank:
                         st.session_state.db_edit_bank = bank if bank and bank != "None" else ""
                         st.session_state.db_edit_comp = comp if comp and comp != "None" else ""
@@ -1080,7 +1125,7 @@ with tab_db:
                     # Widgets using KEYS ONLY (Initialized in Edit Button)
                     e_date = st.date_input("Document Date", key="db_edit_date")
                     e_ref = st.text_input("Reference No", key="db_edit_ref")
-                    e_total = st.number_input("Total Value", format="%.2f", key="db_edit_total")
+                    e_total = st.text_input("Total Value", key="db_edit_total", on_change=format_db_total_input)
                     
                     e_trans = st.selectbox("Transaction", ["DEBIT", "CREDIT", "BF"], key="db_edit_trans")
                 
@@ -1101,7 +1146,7 @@ with tab_db:
                             "currency": st.session_state.db_edit_curr,
                             "doc_date": st.session_state.db_edit_date.strftime("%Y-%m-%d"),
                             "ref_no": st.session_state.db_edit_ref,
-                            "total_value": st.session_state.db_edit_total,
+                            "total_value": float(re.sub(r"[^\d.]", "", st.session_state.db_edit_total)) if st.session_state.db_edit_total else 0.0,
                             "transaction_details": st.session_state.db_edit_trans
                         }
                         
@@ -1156,7 +1201,7 @@ with tab_manual:
         
         # Initialize session state for manual entry if not exists
         if "m_ref" not in st.session_state: st.session_state.m_ref = ""
-        if "m_total" not in st.session_state: st.session_state.m_total = 0.0
+        if "m_total" not in st.session_state: st.session_state.m_total = "0.00"
         if "m_source" not in st.session_state: st.session_state.m_source = "Manual Save"
 
         with col_m1:
@@ -1169,6 +1214,7 @@ with tab_manual:
             comp_val = ""
             curr_val = ""
             acc_type_val = ""
+            branch_val = ""
             
             if selected_ac != "-- Select Account --":
                 match = master_df[master_df['ACNO'] == selected_ac]
@@ -1177,16 +1223,36 @@ with tab_manual:
                     comp_val = match.iloc[0].get('AccountName', '')
                     curr_val = match.iloc[0].get('Currency', '')
                     acc_type_val = match.iloc[0].get('AccountType', '')
+                    branch_val = match.iloc[0].get('Branch', '')
             
             m_transaction = st.selectbox("Transaction Type", ["DEBIT", "CREDIT", "BF"], key="m_trans")
             m_date = st.date_input("Document Date", value=pd.Timestamp.now(), key="m_date")
             m_ref = st.text_input("Reference No", key="m_ref_input", value=st.session_state.m_ref)
-            m_total = st.number_input("Total Value", min_value=0.0, format="%.2f", key="m_total_input", value=st.session_state.m_total)
+            def format_total_input():
+                val = st.session_state.m_total_input
+                # Keep only digits and decimal point
+                clean_val = re.sub(r"[^\d.]", "", val)
+                try:
+                    if clean_val:
+                        formatted = f"{float(clean_val):,.2f}"
+                        st.session_state.m_total_input = formatted
+                        st.session_state.m_total = formatted
+                except ValueError:
+                    pass
+
+            m_total_str = st.text_input("Total Value", key="m_total_input", value=st.session_state.m_total, on_change=format_total_input)
+            # Parse for DB
+            try:
+                m_total = float(re.sub(r"[^\d.]", "", m_total_str)) if m_total_str else 0.0
+            except ValueError:
+                m_total = 0.0
+
             m_source = st.text_input("Source File", key="m_source_input", value=st.session_state.m_source)
 
         with col_m2:
             st.markdown("##### 🔍 Auto Lookup (Read-only)")
             st.text_input("Bank Name", value=bank_val, disabled=True)
+            st.text_input("Branch", value=branch_val, disabled=True)
             st.text_input("Company Name", value=comp_val, disabled=True)
             st.text_input("Account Type", value=acc_type_val, disabled=True)
             st.text_input("Currency", value=curr_val, disabled=True)
@@ -1228,6 +1294,18 @@ with tab_manual:
                     st.success(f"Successfully saved manual record for A/C {selected_ac}")
                     st.toast("Manual record saved!", icon="✅")
                     get_cached_filter_options.clear()
+                    
+                    # RESET FORM for New Record
+                    st.session_state.m_ref = ""
+                    st.session_state.m_total = "0.00"
+                    st.session_state.m_source = "Manual Save"
+                    
+                    # Delete widget keys to force reset in next run
+                    for k in ["m_ref_input", "m_total_input", "manual_ac"]:
+                        if k in st.session_state:
+                            del st.session_state[k]
+                    
+                    st.rerun()
                 else:
                     st.error(f"Failed to save: {msg}")
     else:
@@ -1238,7 +1316,7 @@ with tab_manual:
 # ==========================================
 with tab_report:
     st.subheader("📉 Bank Statement By A/C No. Report")
-    st.info("Generate a detailed bank statement with running balance.")
+    # st.info("Generate a detailed bank statement with running balance.")
     
     # Reuse functionality from Manual Entry to load Master Data options
     master_df = get_ac_master_data(master_path, os.path.getmtime(master_path) if os.path.exists(master_path) else 0)
@@ -1249,6 +1327,7 @@ with tab_report:
         ac_display_options = ["-- Select Account --"] + master_df['Display'].tolist()
         ac_mapping = dict(zip(master_df['Display'], master_df['ACNO']))
         
+<<<<<<< HEAD
         with st.expander("🔍 Filter & Search Options", expanded=True):
             with st.form("rpt_filter_form"):
                 col_r1, col_r2, col_r3, col_r4 = st.columns([1.5, 0.6, 0.6, 1])
@@ -1285,16 +1364,70 @@ with tab_report:
             r_start_date = f"{r_year}-{r_month}-01"
             r_end_date = f"{r_year}-{r_month}-{last_day}"
             
+=======
+        # State management for expander
+        if "report_expanded" not in st.session_state:
+            st.session_state.report_expanded = True
+            
+        def close_report_expander():
+            st.session_state.report_expanded = False
+
+        with st.expander("🔍 Report Options", expanded=st.session_state.report_expanded):
+            # Single Row Layout: Account (2) | Year (0.8) | Month (0.8) | Starting Balance (1)
+            col_r1, col_r2, col_r3, col_r4 = st.columns([2, 0.8, 0.8, 1])
+            
+            with col_r1:
+                r_selected_display = st.selectbox("Select Account", ac_display_options, key="report_ac")
+                r_selected_ac = ac_mapping.get(r_selected_display, None)
+                
+            # Get Year/Month options from cache (same as Tab 2)
+            _, _, _, _, years, months = get_cached_filter_options()
+            
+            with col_r2:
+                r_year = st.selectbox("Year", years, key="rpt_year")
+                
+            with col_r3:
+                r_month = st.selectbox("Month", months, key="rpt_month")
+            
+            with col_r4:
+                starting_balance = st.number_input("Starting Balance", value=0.0, format="%.2f")
+            
+            # Generate Button (Full Width below)
+            st.markdown("<br>", unsafe_allow_html=True)
+            generate_btn = st.button("📊 Generate Report", type="primary", use_container_width=True, on_click=close_report_expander)
+
+        if generate_btn:
+             # Auto-collapse handled by callback
+            
+>>>>>>> 7a29223 (feat: Manual Entry improvements, BF transaction type, and Navigator filters)
             if r_selected_ac and r_selected_ac != "-- Select Account --":
+                # Determine Date Range from Year/Month
+                if r_year == "All":
+                    start_date = None
+                    end_date = None
+                    period_str = "All Time"
+                else:
+                    if r_month == "All":
+                        start_date = f"{r_year}-01-01"
+                        end_date = f"{r_year}-12-31"
+                        period_str = f"Year {r_year}"
+                    else:
+                        import calendar
+                        last_day = calendar.monthrange(int(r_year), int(r_month))[1]
+                        start_date = f"{r_year}-{r_month}-01"
+                        end_date = f"{r_year}-{r_month}-{last_day}"
+                        period_str = f"{r_year}-{r_month}"
+
                 # Load Data filtered by Account and Date Range
                 report_df = db.load_records(
                     ac_no=r_selected_ac,
-                    start_date=r_start_date,
-                    end_date=r_end_date
+                    start_date=start_date,
+                    end_date=end_date
                 )
                 
                 if not report_df.empty:
                     # Data Transformation Logic
+<<<<<<< HEAD
                     # 1. Sort by Date -> BF First -> id
                     report_df['Sort_Order'] = report_df['Transaction'].apply(lambda x: 0 if x == 'BF' else 1)
                     report_df = report_df.sort_values(by=["Document Date", "Sort_Order", "id"], ascending=[True, True, True])
@@ -1308,10 +1441,32 @@ with tab_report:
                     # Calculate cumulative sum of (Debit - Credit + BF)
                     # Assuming BF is a positive addition (Balance Forward)
                     report_df['Net Change'] = report_df['Debit'] - report_df['Credit'] + report_df['BF']
+=======
+                    # 1. Custom Sort: BF first, then by Date and ID
+                    # Create temporary priority column: BF=0, Others=1
+                    report_df['sort_priority'] = report_df['Transaction'].apply(lambda x: 0 if x == 'BF' else 1)
+                    report_df = report_df.sort_values(by=["sort_priority", "Document Date", "id"], ascending=[True, True, True])
+                    
+                    # 2. Pivot/Melt Logic
+                    report_df['Debit'] = report_df.apply(lambda x: x['Total Value'] if x['Transaction'] == 'DEBIT' else 0, axis=1)
+                    report_df['Credit'] = report_df.apply(lambda x: x['Total Value'] if x['Transaction'] == 'CREDIT' else 0, axis=1)
+                    # New BF Column logic
+                    report_df['BF'] = report_df.apply(lambda x: x['Total Value'] if x['Transaction'] == 'BF' else 0, axis=1)
+                    
+                    # 3. Calculate Running Balance
+                    # Formula: Balance = Starting Balance + BF + Debit - Credit
+                    # Note: We accumulate the net change relative to the starting row
+                    
+                    # Calculate Net Change per row
+                    report_df['Net Change'] = report_df['BF'] + report_df['Debit'] - report_df['Credit']
+                    
+                    # Cumulative Sum
+>>>>>>> 7a29223 (feat: Manual Entry improvements, BF transaction type, and Navigator filters)
                     report_df['Balance'] = starting_balance + report_df['Net Change'].cumsum()
                     
                     # 4. Final Formatting
                     # Columns needed: Date, BF, Debit, Credit, Balance, Others (Ref No)
+<<<<<<< HEAD
                     # Reordering to put BF first or last? Usually Date, Desc, BF, Debit, Credit, Balance
                     # But here structure is Date, Debit, Credit, Balance, Others
                     # Let's add BF before Debit
@@ -1323,10 +1478,17 @@ with tab_report:
                     # st.markdown(f"**Statement for:** {r_selected_display}")
                     # st.markdown(f"**Period:** {r_start_date}")
                     
+=======
+                    final_df = report_df[['Document Date', 'BF', 'Debit', 'Credit', 'Balance', 'Reference No']].copy()
+                    final_df = final_df.rename(columns={'Document Date': 'Date', 'Reference No': 'Others'})
+                    
+>>>>>>> 7a29223 (feat: Manual Entry improvements, BF transaction type, and Navigator filters)
                     # Create display copy for formatting
                     display_df = final_df.copy()
                     for col in ["BF", "Debit", "Credit", "Balance"]:
                          display_df[col] = display_df[col].apply(lambda x: f"{x:,.2f}" if pd.notna(x) else "0.00")
+                    
+                    st.success(f"Report Generated for {r_selected_display} ({period_str})")
                     
                     st.data_editor(
                         display_df,
@@ -1356,11 +1518,19 @@ with tab_report:
                          # Add Header Info
                          header_fmt = workbook.add_format({'bold': True, 'font_size': 12})
                          worksheet.write(0, 0, f"Statement for: {r_selected_display}", header_fmt)
+<<<<<<< HEAD
                          worksheet.write(1, 0, f"Period: {r_month}/{r_year}", header_fmt)
                          
                          # Basic Excel Formatting
                          fmt_currency = workbook.add_format({'num_format': '#,##0.00'})
                          worksheet.set_column('B:E', 18, fmt_currency) # BF, Debit, Credit, Balance
+=======
+                         worksheet.write(1, 0, f"Period: {period_str}", header_fmt)
+                         
+                         # Basic Excel Formatting
+                         fmt_currency = workbook.add_format({'num_format': '#,##0.00'})
+                         worksheet.set_column('B:E', 15, fmt_currency) # BF, Debit, Credit, Balance
+>>>>>>> 7a29223 (feat: Manual Entry improvements, BF transaction type, and Navigator filters)
                          worksheet.set_column('A:A', 12) # Date
                          worksheet.set_column('F:F', 25) # Others
                     
@@ -1381,11 +1551,11 @@ with tab_report:
 # ==========================================
 with tab_balance:
     st.subheader("💰 Bank Balance Summary Report")
-    st.info("Generate a summary of bank balances from start of month to selected date, grouped by currency.")
     
-    # Load Master Data for Branch info
+    # Reuse functionality from Master Data
     master_df = get_ac_master_data(master_path, os.path.getmtime(master_path) if os.path.exists(master_path) else 0)
     
+<<<<<<< HEAD
     with st.expander("🔍 Filter & Search Options", expanded=True):
         with st.form("bal_filter_form"):
             # UI Controls
@@ -1432,10 +1602,40 @@ with tab_balance:
                     master_lookup = master_df[['ACNO', 'Branch', 'AccountName']].copy()
                     master_lookup = master_lookup.rename(columns={'ACNO': 'ac_no', 'AccountName': 'company_name'})
                     balance_df = balance_df.merge(master_lookup, on='ac_no', how='left')
+=======
+    if not master_df.empty:
+         # Create options with "All Accounts"
+        master_df['Display'] = master_df.apply(lambda x: f"{x['ACNO']} - {x['BankName']} - {x['AccountName']} {x.get('Branch NicName', '')}".strip(), axis=1)
+        # Tab 5 allows "All Accounts"
+        ac_display_options_bal = ["-- All Accounts --"] + master_df['Display'].tolist()
+        ac_mapping_bal = dict(zip(master_df['Display'], master_df['ACNO']))
+        
+        # State management for expander
+        if "bal_expanded" not in st.session_state:
+            st.session_state.bal_expanded = True
+            
+        def close_bal_expander():
+            st.session_state.bal_expanded = False
+
+        with st.expander("🔍 Report Options", expanded=st.session_state.bal_expanded):
+             # UI Layout: Account (2) | Year (0.8) | Month (0.8)
+            col_b1, col_b2, col_b3 = st.columns([2, 0.8, 0.8])
+            
+            with col_b1:
+                b_selected_display = st.selectbox("Select Account", ac_display_options_bal, key="bal_ac")
+                if b_selected_display == "-- All Accounts --":
+                    b_selected_ac = "All"
+>>>>>>> 7a29223 (feat: Manual Entry improvements, BF transaction type, and Navigator filters)
                 else:
-                    balance_df['Branch'] = ''
-                    balance_df['company_name'] = ''
+                    b_selected_ac = ac_mapping_bal.get(b_selected_display, "All")
+            
+            # Reuse cached options
+            _, _, _, _, years, months = get_cached_filter_options()
+            
+            with col_b2:
+                b_year = st.selectbox("Year", years, key="bal_year")
                 
+<<<<<<< HEAD
                 # Calculate Balance (Debit - Credit + BF)
                 balance_df['balance'] = balance_df['total_debit'] - balance_df['total_credit'] + balance_df['total_bf']
                 
@@ -1520,24 +1720,96 @@ with tab_balance:
                         file_name=f"Balance_Summary_{bal_as_of_date.strftime('%Y%m%d')}.xlsx",
                         mime="application/vnd.ms-excel"
                     )
+=======
+            with col_b3:
+                b_month = st.selectbox("Month", months, key="bal_month")
+                
+            st.markdown("<br>", unsafe_allow_html=True)
+            gen_bal_btn = st.button("📊 Generate Balance Report", type="primary", use_container_width=True, on_click=close_bal_expander)
+            
+        if gen_bal_btn:
+            # Date Logic
+            if b_year == "All":
+                start_date = None
+                end_date = None
+                period_str = "All Time"
+>>>>>>> 7a29223 (feat: Manual Entry improvements, BF transaction type, and Navigator filters)
             else:
-                st.warning("No data found for the selected criteria.")
+                if b_month == "All":
+                    start_date = f"{b_year}-01-01"
+                    end_date = f"{b_year}-12-31"
+                    period_str = f"Year {b_year}"
+                else:
+                    import calendar
+                    last_day = calendar.monthrange(int(b_year), int(b_month))[1]
+                    start_date = f"{b_year}-{b_month}-01"
+                    end_date = f"{b_year}-{b_month}-{last_day}"
+                    period_str = f"{b_year}-{b_month}"
+            
+            # Load Data
+            df_bal = db.load_records(ac_no=b_selected_ac, start_date=start_date, end_date=end_date)
+            
+            if not df_bal.empty:
+                # Calculate BF, Debit, Credit
+                df_bal['BF'] = df_bal.apply(lambda x: x['Total Value'] if x['Transaction'] == 'BF' else 0.0, axis=1)
+                df_bal['Debit'] = df_bal.apply(lambda x: x['Total Value'] if x['Transaction'] == 'DEBIT' else 0.0, axis=1)
+                df_bal['Credit'] = df_bal.apply(lambda x: x['Total Value'] if x['Transaction'] == 'CREDIT' else 0.0, axis=1)
+                
+                # Group By Account Details
+                # We group by A/C No, Bank Name, Currency, Company Name to avoid aggregating mixed types
+                # Ensure these columns exist (they should from load_records)
+                cols_to_group = ['A/C No', 'Bank Name', 'Currency', 'Company Name']
+                existing_group_cols = [c for c in cols_to_group if c in df_bal.columns]
+                
+                summary = df_bal.groupby(existing_group_cols).agg({
+                    'BF': 'sum',
+                    'Debit': 'sum',
+                    'Credit': 'sum'
+                }).reset_index()
+                
+                # Calculate Bank Balance
+                summary['Bank Balance'] = summary['BF'] + summary['Debit'] - summary['Credit']
+                
+                st.success(f"Balance Summary Generated for {period_str}")
+                
+                st.dataframe(
+                    summary,
+                    column_config={
+                        "A/C No": "Account No",
+                        "Bank Name": "Bank",
+                        "Company Name": "Company",
+                        "Currency": "Ccy",
+                        "BF": st.column_config.NumberColumn("B/F", format="%.2f"),
+                        "Debit": st.column_config.NumberColumn("Debit", format="%.2f"),
+                        "Credit": st.column_config.NumberColumn("Credit", format="%.2f"),
+                        "Bank Balance": st.column_config.NumberColumn("Bank Balance", format="%.2f")
+                    },
+                    use_container_width=True,
+                    hide_index=True
+                )
+                
+                # Excel Export
+                buffer = BytesIO()
+                with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                     summary.to_excel(writer, index=False, sheet_name='Summary', startrow=3)
+                     workbook = writer.book
+                     worksheet = writer.sheets['Summary']
+                     header_fmt = workbook.add_format({'bold': True, 'font_size': 12})
+                     worksheet.write(0, 0, f"Bank Balance Summary: {period_str}", header_fmt)
+                     
+                     fmt_num = workbook.add_format({'num_format': '#,##0.00'})
+                     # Adjust column widths based on expected content
+                     worksheet.set_column('A:D', 15) 
+                     worksheet.set_column('E:H', 15, fmt_num) # BF, Debit, Credit, Balance
+                
+                st.download_button(
+                    label="📥 Download Excel Report",
+                    data=buffer.getvalue(),
+                    file_name=f"Balance_Summary_{pd.Timestamp.now().strftime('%Y%m%d')}.xlsx",
+                    mime="application/vnd.ms-excel"
+                )
 
-
-# Style (Minimal CSS)
-st.markdown("""
-<style>
-    .stButton>button {
-        border-radius: 5px;
-        height: 3em;
-    }
-    [data-testid="stDataFrameResizable"], 
-    [data-testid="stDataFrame"],
-    .dvn-scroller {
-        overflow-anchor: none !important;
-    }
-    .main .block-container {
-        overflow-anchor: none !important;
-    }
-</style>
-""", unsafe_allow_html=True)
+            else:
+                st.warning("No transactions found for the selected criteria.")
+    else:
+        st.warning("No Master Data found. Please configure accounts in Settings.")

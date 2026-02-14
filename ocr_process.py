@@ -345,7 +345,7 @@ def process_single_pdf(pdf_path, engine="Tesseract", api_key=None, master_path=N
     
     for data in entries:
         if master_path:
-            bank, company, currency = lookup_master(data["A/C No"], master_path)
+            bank, company, currency, branch = lookup_master(data["A/C No"], master_path)
             data["Bank Name"] = bank
             data["Company Name"] = company
             data["Currency"] = currency
